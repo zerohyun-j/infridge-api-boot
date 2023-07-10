@@ -1,0 +1,3 @@
+[submodule "infridge-api-data"]
+	path = infridge-api-data
+	url = https://github.com/zerohyun-j/infridge-api-data.git
