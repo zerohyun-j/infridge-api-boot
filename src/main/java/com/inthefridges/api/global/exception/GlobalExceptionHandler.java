@@ -98,7 +98,7 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 인증 예외 처리
+     * 인증 예외 처리 TODO : spring security 적용 시 주석 해제
      * */
 //    @ResponseStatus(UNAUTHORIZED)
 //    @ExceptionHandler({ AuthenticationException.class })
@@ -108,7 +108,7 @@ public class GlobalExceptionHandler {
 //    }
 
     /**
-     * 인가 예외 처리
+     * 인가 예외 처리 TODO : spring security 적용 시 주석 해제
      * */
 //    @ResponseStatus(FORBIDDEN)
 //    @ExceptionHandler({ AccessDeniedException.class })
