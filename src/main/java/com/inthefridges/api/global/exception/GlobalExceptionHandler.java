@@ -121,18 +121,17 @@ public class GlobalExceptionHandler {
     /**
      * 예상하지 못한 서버 예외 처리
      */
-//    @SlackNotification
-//    @ResponseStatus(INTERNAL_SERVER_ERROR)
-//    @ExceptionHandler({Exception.class})
-//    public ErrorResponse handleServerException(HttpServletRequest request, Exception e) {
-//        logError(e);
-//
-//        if (e instanceof MethodArgumentTypeMismatchException) {
-//            return ErrorResponse.of(ExceptionCode.NOT_EXIST_API);
-//        }
-//
-//        return ErrorResponse.of(ExceptionCode.INTERNAL_SERVER_ERROR);
-//    }
+    @ResponseStatus(INTERNAL_SERVER_ERROR)
+    @ExceptionHandler({Exception.class})
+    public ErrorResponse handleServerException(HttpServletRequest request, Exception e) {
+        logError(e);
+
+        if (e instanceof MethodArgumentTypeMismatchException) {
+            return ErrorResponse.of(ExceptionCode.NOT_EXIST_API);
+        }
+
+        return ErrorResponse.of(ExceptionCode.INTERNAL_SERVER_ERROR);
+    }
 
 
     /** 심각한 오류나 예외 상황을 로깅 */
