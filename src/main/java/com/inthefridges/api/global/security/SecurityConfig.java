@@ -5,6 +5,8 @@ import com.inthefridges.api.global.security.handler.CustomAuthenticationSuccessH
 import com.inthefridges.api.global.security.oauth.repository.HttpCookieOAuthAuthorizationRequestRepository;
 import com.inthefridges.api.global.security.oauth.service.CustomOauthUserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.catalina.filters.CorsFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -13,7 +15,14 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
+import java.util.List;
+
+@Slf4j
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -27,6 +36,7 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
+                .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()))
                 .csrf(CsrfConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)  // formLogin 페이지 사용 X
                 .httpBasic(AbstractHttpConfigurer::disable)  // http 기본 검증 사용 X Bearer 사용 O
@@ -56,4 +66,21 @@ public class SecurityConfig {
 //                                        ))
                 .build();
     }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+
+//        config.addAllowedOrigin("http://3.36.236.207"); // 프론트 IPv4 주소
+//        config.addAllowedOrigin("http://13.209.220.63"); // 백엔드 IPv4 주소
+        config.addAllowedOrigin("http://localhost:5173");
+        config.addAllowedMethod("*"); // 모든 메소드 허용.
+        config.addAllowedHeader("*");
+        config.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
+    }
+
 }
