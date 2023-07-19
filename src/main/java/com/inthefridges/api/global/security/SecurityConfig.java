@@ -6,7 +6,6 @@ import com.inthefridges.api.global.security.oauth.repository.HttpCookieOAuthAuth
 import com.inthefridges.api.global.security.oauth.service.CustomOauthUserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.catalina.filters.CorsFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -20,12 +19,11 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
-//@Configuration
-//@EnableWebSecurity
+@Configuration
+@EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -38,7 +36,6 @@ public class SecurityConfig {
     SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
                 .cors(Customizer.withDefaults())
-//                .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()))
                 .csrf(CsrfConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)  // formLogin 페이지 사용 X
                 .httpBasic(AbstractHttpConfigurer::disable)  // http 기본 검증 사용 X Bearer 사용 O
@@ -49,12 +46,12 @@ public class SecurityConfig {
                         .anyRequest().permitAll())
                 .oauth2Login(oauth2 -> oauth2
                         .authorizationEndpoint(authorizationEndpointConfig ->
-                                authorizationEndpointConfig.baseUri("/api/v1/oauth2/authorization")
+                                authorizationEndpointConfig.baseUri("/oauth2/authorization")
                                         // 사용자의 인증 요청을 임시로 보관하는 리포지토리에 대한 설정
                                         // 인증 과정을 모두 마친 후 리다이렉트할 프론트의 uri를 보관하는 과정이 있음
                                         .authorizationRequestRepository(authorizationRepository))
                         // 인증 코드를 전달 받기위한 uri
-                        .redirectionEndpoint(redirectionEndpointConfig -> redirectionEndpointConfig.baseUri("/api/v1/oauth2/callback/*"))
+                        .redirectionEndpoint(redirectionEndpointConfig -> redirectionEndpointConfig.baseUri("/oauth2/callback/*"))
                         .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig.userService(customOauthUserService))
                         .successHandler(customAuthenticationSuccessHandler)
                         .failureHandler(customAuthenticationFailureHandler))
@@ -69,7 +66,7 @@ public class SecurityConfig {
                 .build();
     }
 
-    @Bean
+//    @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 

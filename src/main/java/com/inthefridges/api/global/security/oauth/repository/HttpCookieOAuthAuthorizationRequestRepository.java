@@ -3,6 +3,7 @@ package com.inthefridges.api.global.security.oauth.repository;
 import com.inthefridges.api.global.utils.CookieUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.stereotype.Repository;
@@ -16,6 +17,7 @@ import static org.springframework.util.StringUtils.hasText;
   *  OAuth2 로그인 인증 요청 처리 클래스
   *  OAuth2 인증 요청과 관련된 정보를 저장하고 로드하기 위한 메서드를 정의함
   */
+@Slf4j
 @Repository
 public class HttpCookieOAuthAuthorizationRequestRepository implements AuthorizationRequestRepository<OAuth2AuthorizationRequest> {
 

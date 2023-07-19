@@ -9,6 +9,7 @@ import com.inthefridges.api.service.MemberService;
 import com.inthefridges.api.service.ProfileImageService;
 import com.inthefridges.api.service.RoleService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -17,7 +18,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CustomOauthUserService extends DefaultOAuth2UserService {
@@ -32,6 +33,8 @@ public class CustomOauthUserService extends DefaultOAuth2UserService {
         String socialName = userRequest.getClientRegistration().getRegistrationId();
 
         OAuthUserInfo oAuthUserInfo = OAuthUserProvider.getOAuthUserInfo(socialName, oAuth2User);
+
+        log.info("{} = ", oAuthUserInfo);
 
         // 회원 조회 및 저장
         Member member = memberService.getOrCreate(oAuthUserInfo);
