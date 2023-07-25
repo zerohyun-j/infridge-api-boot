@@ -21,7 +21,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CustomOauthUserService extends DefaultOAuth2UserService {
+public class CustomOAuthUserService extends DefaultOAuth2UserService {
 
     private final MemberService memberService;
     private final ProfileImageService profileImageService;
@@ -33,8 +33,6 @@ public class CustomOauthUserService extends DefaultOAuth2UserService {
         String socialName = userRequest.getClientRegistration().getRegistrationId();
 
         OAuthUserInfo oAuthUserInfo = OAuthUserProvider.getOAuthUserInfo(socialName, oAuth2User);
-
-        log.info("{} = ", oAuthUserInfo);
 
         // 회원 조회 및 저장
         Member member = memberService.getOrCreate(oAuthUserInfo);

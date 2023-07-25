@@ -2,8 +2,9 @@ package com.inthefridges.api.global.security;
 
 import com.inthefridges.api.global.security.handler.CustomAuthenticationFailureHandler;
 import com.inthefridges.api.global.security.handler.CustomAuthenticationSuccessHandler;
+import com.inthefridges.api.global.security.jwt.filter.JwtFilter;
 import com.inthefridges.api.global.security.oauth.repository.HttpCookieOAuthAuthorizationRequestRepository;
-import com.inthefridges.api.global.security.oauth.service.CustomOauthUserService;
+import com.inthefridges.api.global.security.oauth.service.CustomOAuthUserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -14,6 +15,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -28,9 +30,10 @@ import java.util.List;
 public class SecurityConfig {
 
     private final HttpCookieOAuthAuthorizationRequestRepository authorizationRepository;
-    private final CustomOauthUserService customOauthUserService;
+    private final CustomOAuthUserService customOauthUserService;
     private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
     private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
+    private final JwtFilter jwtFilter;
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
@@ -55,7 +58,7 @@ public class SecurityConfig {
                         .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig.userService(customOauthUserService))
                         .successHandler(customAuthenticationSuccessHandler)
                         .failureHandler(customAuthenticationFailureHandler))
-//                        .exceptionHandling(exceptionHandling ->
+                        //                        .exceptionHandling(exceptionHandling ->
 //                                exceptionHandling
 //                                        .authenticationEntryPoint(
 //                                                (httpServletRequest, httpServletResponse, e) -> httpServletResponse.sendError(401)
@@ -63,6 +66,7 @@ public class SecurityConfig {
 //                                        .accessDeniedHandler(
 //                                                (httpServletRequest, httpServletResponse, e) -> httpServletResponse.sendError(403)
 //                                        ))
+                .addFilterBefore(jwtFilter, OAuth2AuthorizationRequestRedirectFilter.class)
                 .build();
     }
 
