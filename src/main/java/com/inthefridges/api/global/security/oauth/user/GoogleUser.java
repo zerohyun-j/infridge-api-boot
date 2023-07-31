@@ -10,26 +10,24 @@ public class GoogleUser extends OAuthUserInfo{
 
     @Override
     public String getProvider() {
-        return null;
+        return "google";
     }
 
     @Override
-    public String getId() {
-        return null;
-    }
+    public String getId() { return (String)attributes.get("sub"); }
 
     @Override
     public String getName() {
-        return null;
+        return (String)attributes.get("name");
     }
 
     @Override
     public String getEmail() {
-        return null;
+        return (String)attributes.get("email");
     }
 
     @Override
     public String getProfileImageUrl() {
-        return null;
+        return (String)attributes.get("picture");
     }
 }

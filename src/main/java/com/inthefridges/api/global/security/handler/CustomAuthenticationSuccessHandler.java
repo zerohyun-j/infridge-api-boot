@@ -3,6 +3,7 @@ package com.inthefridges.api.global.security.handler;
 import com.inthefridges.api.entity.CustomUserDetails;
 import com.inthefridges.api.global.security.jwt.JwtService;
 import com.inthefridges.api.global.security.jwt.model.Tokens;
+import com.inthefridges.api.global.security.oauth.repository.HttpCookieOAuthAuthorizationRequestRepository;
 import com.inthefridges.api.global.utils.CookieUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -26,13 +27,17 @@ import static com.inthefridges.api.global.security.oauth.repository.HttpCookieOA
 public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
 
     private final JwtService jwtService;
+    private final HttpCookieOAuthAuthorizationRequestRepository authorizationRepository;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws ServletException, IOException {
-        CustomUserDetails customUserDetails = (CustomUserDetails)authentication;
+        CustomUserDetails customUserDetails = (CustomUserDetails)authentication.getPrincipal();
         Tokens tokens = jwtService.createTokens(customUserDetails);
         String redirectUri = getRedirectUri(request, tokens.accessToken());
         setRefreshTokenInCookie(response, tokens.refreshToken());
+
+        // HttpCookieOAuthAuthorizationRequestRepository 에서 생성된 쿠키 제거
+        clearAuthenticationAttributes(request, response);
         getRedirectStrategy().sendRedirect(request, response, redirectUri);
     }
 
@@ -42,7 +47,7 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
                 .orElse(getDefaultTargetUrl());
 
         return UriComponentsBuilder.fromUriString(redirectUri)
-                .queryParam("token", accessToken)
+                .queryParam("accessToken", accessToken)
                 .build().toUriString();
     }
 
@@ -56,5 +61,10 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
                 .build();
 
         response.addHeader("Set-Cookie", token.toString());
+    }
+
+    protected void clearAuthenticationAttributes(HttpServletRequest request, HttpServletResponse response) {
+        super.clearAuthenticationAttributes(request);
+        authorizationRepository.removeAuthorizationRequestCookies(request, response);
     }
 }

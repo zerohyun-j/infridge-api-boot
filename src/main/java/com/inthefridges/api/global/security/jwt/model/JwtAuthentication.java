@@ -2,7 +2,6 @@ package com.inthefridges.api.global.security.jwt.model;
 
 import com.inthefridges.api.global.exception.ExceptionCode;
 import com.inthefridges.api.global.exception.ServiceException;
-import com.nimbusds.oauth2.sdk.auth.JWTAuthentication;
 
 import java.util.Objects;
 

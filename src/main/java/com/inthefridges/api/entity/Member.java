@@ -15,8 +15,8 @@ public class Member {
     private Long id;
     private String email;
     private String username;
-    private String social_id;
-    private int social_type;
+    private String socialId;
+    private int socialTypeId;
     private Date createdAt;
     private Date updatedAt;
     private Date deletedAt;

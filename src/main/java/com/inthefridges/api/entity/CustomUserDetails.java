@@ -20,7 +20,7 @@ public class CustomUserDetails implements OAuth2User {
     private Member member;
     private List<GrantedAuthority> authorities;
     private Map<String, Object> attributes;
-    private ProfileImage profileImage;
+    private String profileImage;
 
     @Override
     public Map<String, Object> getAttributes() {
@@ -34,6 +34,6 @@ public class CustomUserDetails implements OAuth2User {
 
     @Override
     public String getName() {
-        return null;
+        return member.getUsername();
     }
 }

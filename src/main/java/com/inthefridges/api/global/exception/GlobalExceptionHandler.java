@@ -3,11 +3,15 @@ package com.inthefridges.api.global.exception;
 import com.inthefridges.api.global.exception.response.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestCookieException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -98,25 +102,30 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 인증 예외 처리 TODO : spring security 적용 시 주석 해제
+     * 인증 예외 처리
      * */
-//    @ResponseStatus(UNAUTHORIZED)
-//    @ExceptionHandler({ AuthenticationException.class })
-//    public ErrorResponse handleAuthenticationExceptionException(Exception e) {
-//        logError(e);
-//        return ErrorResponse.of(ExceptionCode.UNAUTHORIZED);
-//    }
+    @ResponseStatus(UNAUTHORIZED)
+    @ExceptionHandler({ AuthenticationException.class })
+    public ErrorResponse handleAuthenticationExceptionException(Exception e) {
+        logError(e);
+        return ErrorResponse.of(ExceptionCode.NOT_AUTHORIZATION);
+    }
 
     /**
-     * 인가 예외 처리 TODO : spring security 적용 시 주석 해제
+     * 인가 예외 처리
      * */
-//    @ResponseStatus(FORBIDDEN)
-//    @ExceptionHandler({ AccessDeniedException.class })
-//    public ErrorResponse handleAccessDeniedException(
-//            Exception e) {
-//        logError(e);
-//        return ErrorResponse.of(ExceptionCode.FORBIDDEN_MEMBER);
-//    }
+    @ResponseStatus(FORBIDDEN)
+    @ExceptionHandler({ AccessDeniedException.class })
+    public ErrorResponse handleAccessDeniedException(
+            Exception e) {
+        logError(e);
+        return ErrorResponse.of(ExceptionCode.NOT_AUTHORIZATION);
+    }
+
+    @ExceptionHandler(MissingRequestCookieException.class)
+    public ResponseEntity<String> handleMissingRequestCookieException(MissingRequestCookieException e) {
+        return new ResponseEntity<>("Required cookie 'refreshToken' is not present", UNAUTHORIZED);
+    }
 
     /**
      * 예상하지 못한 서버 예외 처리

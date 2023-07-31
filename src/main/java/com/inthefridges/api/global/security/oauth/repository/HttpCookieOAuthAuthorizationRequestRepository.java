@@ -35,7 +35,9 @@ public class HttpCookieOAuthAuthorizationRequestRepository implements Authorizat
     }
 
     /**
-     * 1*/
+     * 1.
+     * 클라이언트에서 http://localhost:9000/oauth2/callback/google
+     * 인증 요청 시 요청 정보와 로그인 후 리다이렉션될 URI를 쿠키에 저장*/
     @Override
     public void saveAuthorizationRequest(OAuth2AuthorizationRequest authorizationRequest, HttpServletRequest request, HttpServletResponse response) {
         if (authorizationRequest == null) {

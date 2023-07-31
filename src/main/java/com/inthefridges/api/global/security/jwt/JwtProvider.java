@@ -5,6 +5,7 @@ import com.inthefridges.api.global.exception.ExceptionCode;
 import com.inthefridges.api.global.exception.ServiceException;
 import com.inthefridges.api.service.RefreshTokenService;
 import io.jsonwebtoken.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -12,18 +13,18 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 import java.util.Map;
 
+@Slf4j
 @Component
 public class JwtProvider {
 
-    private String secretKey;
-    // 900,000ms = 15분
-    private Long accessExpirationMillis;
-    private Long refreshExpirationMillis;
+    private final String secretKey;
+    private final Long accessExpirationMillis;
+    private final Long refreshExpirationMillis;
 
     @Autowired
     private RefreshTokenService refreshTokenService;
 
-    public JwtProvider(@Value("") String secretKey, @Value("") Long accessExpirationMillis, @Value("") Long refreshExpirationMillis){
+    public JwtProvider(@Value("${jwt.secret-key}") String secretKey, @Value("${jwt.expiry-millis.access-token}") Long accessExpirationMillis, @Value("${jwt.expiry-millis.refresh-token}") Long refreshExpirationMillis){
         this.secretKey = secretKey;
         this.accessExpirationMillis = accessExpirationMillis;
         this.refreshExpirationMillis = refreshExpirationMillis;
@@ -49,10 +50,14 @@ public class JwtProvider {
         return createToken(userId, role, accessExpirationMillis);
     }
 
-    public String createRefreshToken(Long userId, String role){
-        String token = createToken(userId, role, refreshExpirationMillis);
-        RefreshToken refreshToken = new RefreshToken(userId, token);
-        refreshTokenService.createOrUpdate(refreshToken);
+    public String createRefreshToken(Long memberId, String role){
+        String token = createToken(memberId, role, refreshExpirationMillis);
+        RefreshToken refreshToken = RefreshToken.builder()
+                                    .token(token)
+                                    .memberId(memberId)
+                                    .role(role)
+                                    .build();
+        refreshTokenService.create(refreshToken);
         return token;
     }
 
@@ -70,7 +75,7 @@ public class JwtProvider {
                     .setSigningKey(secretKey)
                     .build()
                     .parseClaimsJws(token);
-        }catch(ExpiredJwtException e){
+        }catch(ExpiredJwtException e){ // TODO : 응답으로 에러 반환
             throw new ServiceException(ExceptionCode.EXPIRED_TOKEN);
         }catch(JwtException | IllegalArgumentException e){
             throw new ServiceException(ExceptionCode.INVALID_TOKEN);

@@ -2,9 +2,11 @@ package com.inthefridges.api.global.security;
 
 import com.inthefridges.api.global.security.handler.CustomAuthenticationFailureHandler;
 import com.inthefridges.api.global.security.handler.CustomAuthenticationSuccessHandler;
+import com.inthefridges.api.global.security.jwt.filter.ExceptionHandlerFilter;
 import com.inthefridges.api.global.security.jwt.filter.JwtFilter;
 import com.inthefridges.api.global.security.oauth.repository.HttpCookieOAuthAuthorizationRequestRepository;
 import com.inthefridges.api.global.security.oauth.service.CustomOAuthUserService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -34,6 +36,7 @@ public class SecurityConfig {
     private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
     private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
     private final JwtFilter jwtFilter;
+    private final ExceptionHandlerFilter jwtExceptionFilter;
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
@@ -58,15 +61,12 @@ public class SecurityConfig {
                         .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig.userService(customOauthUserService))
                         .successHandler(customAuthenticationSuccessHandler)
                         .failureHandler(customAuthenticationFailureHandler))
-                        //                        .exceptionHandling(exceptionHandling ->
-//                                exceptionHandling
-//                                        .authenticationEntryPoint(
-//                                                (httpServletRequest, httpServletResponse, e) -> httpServletResponse.sendError(401)
-//                                        )
-//                                        .accessDeniedHandler(
-//                                                (httpServletRequest, httpServletResponse, e) -> httpServletResponse.sendError(403)
-//                                        ))
+                        .exceptionHandling(exceptionHandling ->
+                                exceptionHandling // TODO : ExceptionCode로 추후 변경하기
+                                .authenticationEntryPoint((httpServletRequest, httpServletResponse, e) -> httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED))
+                                .accessDeniedHandler((httpServletRequest, httpServletResponse, e) -> httpServletResponse.sendError(HttpServletResponse.SC_FORBIDDEN)))
                 .addFilterBefore(jwtFilter, OAuth2AuthorizationRequestRedirectFilter.class)
+                .addFilterBefore(jwtExceptionFilter, JwtFilter.class)
                 .build();
     }
 

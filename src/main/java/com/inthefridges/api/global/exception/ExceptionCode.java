@@ -18,9 +18,15 @@ public enum ExceptionCode {
     NOT_VALID("C006", HttpStatus.BAD_REQUEST, "올바르지 않은 요청입니다."),
 
     // Auth
-    NOT_SUPPORTED_SOCIAL("A001", HttpStatus.NOT_FOUND, "지원하지 않는 소셜입니다."),
-    EXPIRED_TOKEN("A002", HttpStatus.UNAUTHORIZED, "만료된 토큰입니다."),
-    INVALID_TOKEN("A003", HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다.");
+    NOT_AUTHENTICATION("A001", HttpStatus.UNAUTHORIZED, "인증되지 않은 사용자입니다."),
+    NOT_AUTHORIZATION("A002", HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
+    NOT_SUPPORTED_SOCIAL("A003", HttpStatus.BAD_REQUEST, "지원하지 않는 소셜입니다."),
+    EXPIRED_TOKEN("A004", HttpStatus.UNAUTHORIZED, "만료된 토큰입니다."),
+    INVALID_TOKEN("A005", HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
+    USER_NOT_FOUND("A006", HttpStatus.NOT_FOUND, "존재하지 않는 회원입니다."),
+    NOT_FOUND_COOKIE("A007",HttpStatus.UNAUTHORIZED, "쿠키를 찾을 수 없습니다."),
+    NOT_FOUND_REFRESH_TOKEN("A008",HttpStatus.NOT_FOUND, "유효하지 않은 리프레쉬 토큰입니다."),;
+
 
     private String errorCode;
     private HttpStatus status;
