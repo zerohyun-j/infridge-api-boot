@@ -40,4 +40,13 @@
         token = #{token} AND
         deleted_at IS NULL
     </delete>
+
+    <update id="update" parameterType="RefreshToken">
+        UPDATE refresh_token
+        <set>
+            token = #{token},
+            role = #{role}
+        </set>
+        WHERE member_id=#{memberId}
+    </update>
 </mapper>

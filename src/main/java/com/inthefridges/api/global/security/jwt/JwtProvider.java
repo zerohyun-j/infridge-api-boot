@@ -57,7 +57,7 @@ public class JwtProvider {
                                     .token(UUID.randomUUID().toString())
                                     .expiryDate(expiredDate)
                                     .build();
-        refreshTokenService.create(refreshToken);
+        refreshTokenService.createOrUpdate(refreshToken);
         return refreshToken.getToken();
     }
 

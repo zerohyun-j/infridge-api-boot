@@ -5,20 +5,22 @@ import com.inthefridges.api.global.exception.ExceptionCode;
 import com.inthefridges.api.global.exception.ServiceException;
 import com.inthefridges.api.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DefaultRefreshTokenService implements RefreshTokenService{
     private final RefreshTokenRepository repository;
 
     @Override
-    public void create(RefreshToken refreshToken) {
-        repository.findByMemberId(refreshToken.getMemberId())
-                .ifPresent(existingToken -> repository.delete(existingToken.getToken()));
-        repository.create(refreshToken);
+    public void createOrUpdate(RefreshToken refreshToken) {
+        repository.findById(refreshToken.getToken())
+                .ifPresentOrElse(
+                        existingToken -> repository.update(refreshToken),
+                        () -> repository.create(refreshToken)
+                );
     }
 
     @Override

@@ -4,5 +4,5 @@ import com.inthefridges.api.entity.RefreshToken;
 
 public interface RefreshTokenService {
     RefreshToken get(String RefreshToken);
-    void create(RefreshToken refreshToken);
+    void createOrUpdate(RefreshToken refreshToken);
 }

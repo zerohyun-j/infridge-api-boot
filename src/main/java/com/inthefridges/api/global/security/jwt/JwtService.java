@@ -18,6 +18,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -52,7 +53,7 @@ public class JwtService {
         String role = claims.get("role", String.class);
 
         JwtAuthentication principal = new JwtAuthentication(userId, accessToke);
-        List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(role));
+        List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(role.toUpperCase()));
         return new JwtAuthenticationToken(principal, null, authorities);
     }
 
@@ -73,19 +74,23 @@ public class JwtService {
         refreshTokenRepository.delete(token.getToken());
     }
 
-    public String getAccessTokensByRefreshToken(String refreshToken) {
+    public Tokens getAccessTokensByRefreshToken(String token) {
         // 토큰 검증
-        checkRefreshToken(refreshToken);
-        jwtProvider.validateToken(refreshToken);
-
-        RefreshToken token = refreshTokenRepository.findById(refreshToken)
+        checkRefreshToken(token);
+        RefreshToken fetchToken = refreshTokenRepository.findById(token)
                 .orElseThrow(()->new ServiceException(ExceptionCode.NOT_FOUND_REFRESH_TOKEN));
-        return jwtProvider.createAccessToken(token.getMemberId(), token.getRole());
+
+        if(fetchToken.getExpiryDate().before(new Date()))
+            throw new ServiceException(ExceptionCode.EXPIRED_TOKEN);
+
+        String accessToken = jwtProvider.createAccessToken(fetchToken.getMemberId(), fetchToken.getRole());
+        String refreshToken = jwtProvider.createRefreshToken(fetchToken.getMemberId(), fetchToken.getRole());
+
+        return new Tokens(accessToken, refreshToken);
     }
 
     private void checkRefreshToken(String refreshToken) {
-        if (Objects.isNull(refreshToken) || refreshToken.isBlank()) {
+        if (Objects.isNull(refreshToken) || refreshToken.isBlank())
             new ServiceException(ExceptionCode.NOT_FOUND_COOKIE);
-        }
     }
 }

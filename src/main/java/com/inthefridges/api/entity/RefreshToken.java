@@ -18,4 +18,5 @@ public class RefreshToken {
     private Date expiryDate;
     private Date createAt;
     private Date deletedAt;
+    private Date updatedAt;
 }
