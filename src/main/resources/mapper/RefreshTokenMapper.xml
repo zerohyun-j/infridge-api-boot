@@ -16,18 +16,20 @@
         AND deleted_at IS NULL
     </select>
 
-    <insert id="create" parameterType="RefreshToken">
+    <insert id="create" parameterType="RefreshToken" useGeneratedKeys="true" keyProperty="token">
         INSERT INTO refresh_token
         (
             member_id,
             token,
-            role
+            role,
+            expiry_date
         )
         VALUES
         (
             #{memberId},
             #{token},
-            #{role}
+            #{role},
+            #{expiryDate}
         )
     </insert>
 

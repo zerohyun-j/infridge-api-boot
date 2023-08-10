@@ -15,6 +15,7 @@ public class RefreshToken {
     private Long memberId;
     private String token;
     private String role;
+    private Date expiryDate;
     private Date createAt;
     private Date deletedAt;
 }

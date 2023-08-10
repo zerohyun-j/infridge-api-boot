@@ -48,7 +48,16 @@ public class SecurityConfig {
                 .sessionManagement((sessionManagement) ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorise -> authorise
-                        .requestMatchers("/members/**").authenticated()
+                        .requestMatchers("/", "/index.html").permitAll()
+                        .requestMatchers("/favicon.ico").permitAll()
+                        .requestMatchers("/js/**").permitAll()
+                        .requestMatchers("/css/**").permitAll()
+                        .requestMatchers("/img/**", "/image/**", "/images/**").permitAll()
+                        .requestMatchers("/font/**", "/fonts/**").permitAll()
+                        .requestMatchers("/file/**", "/files/**").permitAll()
+                        .requestMatchers("/api/v*/refresh/**").permitAll()
+                        .requestMatchers("/members/**").hasAuthority("MEMBER")
+                        .requestMatchers("/admin/**").hasAuthority("ADMIN")
                         .anyRequest().permitAll())
                 .oauth2Login(oauth2 -> oauth2
                         .authorizationEndpoint(authorizationEndpointConfig ->
