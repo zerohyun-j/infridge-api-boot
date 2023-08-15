@@ -47,6 +47,7 @@
             token = #{token},
             role = #{role}
         </set>
-        WHERE member_id=#{memberId}
+        WHERE member_id=#{memberId} AND
+        deleted_at IS NULL
     </update>
 </mapper>
