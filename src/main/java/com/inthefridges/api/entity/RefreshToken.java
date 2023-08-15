@@ -12,6 +12,7 @@ import java.util.Date;
 @AllArgsConstructor
 @Builder
 public class RefreshToken {
+    private Long id;
     private Long memberId;
     private String token;
     private String role;

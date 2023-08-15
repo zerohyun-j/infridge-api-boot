@@ -16,7 +16,7 @@ public class DefaultRefreshTokenService implements RefreshTokenService{
 
     @Override
     public void createOrUpdate(RefreshToken refreshToken) {
-        repository.findById(refreshToken.getToken())
+        repository.findByMemberId(refreshToken.getMemberId())
                 .ifPresentOrElse(
                         existingToken -> repository.update(refreshToken),
                         () -> repository.create(refreshToken)
