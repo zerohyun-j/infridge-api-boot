@@ -2,6 +2,7 @@ package com.inthefridges.api.global.security;
 
 import com.inthefridges.api.global.security.handler.CustomAuthenticationFailureHandler;
 import com.inthefridges.api.global.security.handler.CustomAuthenticationSuccessHandler;
+import com.inthefridges.api.global.security.jwt.JwtAuthenticationEntryPoint;
 import com.inthefridges.api.global.security.jwt.filter.ExceptionHandlerFilter;
 import com.inthefridges.api.global.security.jwt.filter.JwtFilter;
 import com.inthefridges.api.global.security.oauth.repository.HttpCookieOAuthAuthorizationRequestRepository;
@@ -37,6 +38,7 @@ public class SecurityConfig {
     private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
     private final JwtFilter jwtFilter;
     private final ExceptionHandlerFilter jwtExceptionFilter;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
@@ -48,7 +50,16 @@ public class SecurityConfig {
                 .sessionManagement((sessionManagement) ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorise -> authorise
-                        .requestMatchers("/members/**").authenticated()
+                        .requestMatchers("/", "/index.html").permitAll()
+                        .requestMatchers("/favicon.ico").permitAll()
+                        .requestMatchers("/js/**").permitAll()
+                        .requestMatchers("/css/**").permitAll()
+                        .requestMatchers("/img/**", "/image/**", "/images/**").permitAll()
+                        .requestMatchers("/font/**", "/fonts/**").permitAll()
+                        .requestMatchers("/file/**", "/files/**").permitAll()
+                        .requestMatchers("/api/v*/refresh/**").permitAll()
+                        .requestMatchers("/members/**").hasAuthority("MEMBER")
+                        .requestMatchers("/admin/**").hasAuthority("ADMIN")
                         .anyRequest().permitAll())
                 .oauth2Login(oauth2 -> oauth2
                         .authorizationEndpoint(authorizationEndpointConfig ->
@@ -61,10 +72,7 @@ public class SecurityConfig {
                         .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig.userService(customOauthUserService))
                         .successHandler(customAuthenticationSuccessHandler)
                         .failureHandler(customAuthenticationFailureHandler))
-                        .exceptionHandling(exceptionHandling ->
-                                exceptionHandling // TODO : ExceptionCode로 추후 변경하기
-                                .authenticationEntryPoint((httpServletRequest, httpServletResponse, e) -> httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED))
-                                .accessDeniedHandler((httpServletRequest, httpServletResponse, e) -> httpServletResponse.sendError(HttpServletResponse.SC_FORBIDDEN)))
+                .exceptionHandling(httpSecurityExceptionHandlingConfigurer -> httpSecurityExceptionHandlingConfigurer.authenticationEntryPoint(jwtAuthenticationEntryPoint))
                 .addFilterBefore(jwtFilter, OAuth2AuthorizationRequestRedirectFilter.class)
                 .addFilterBefore(jwtExceptionFilter, JwtFilter.class)
                 .build();

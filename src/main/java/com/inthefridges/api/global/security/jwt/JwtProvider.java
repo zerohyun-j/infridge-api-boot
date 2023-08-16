@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -30,11 +31,11 @@ public class JwtProvider {
         this.refreshExpirationMillis = refreshExpirationMillis;
     }
 
-    public String createToken(Long userId, String role, Long TokenValidTime){
+    public String createAccessToken(Long userId, String role){
 
         // 토큰 만료 기간
         Date now = new Date();
-        Date expiredDate = new Date(now.getTime() + TokenValidTime);
+        Date expiredDate = new Date(now.getTime() + accessExpirationMillis);
 
         Map<String, Object> claims = Map.of("userId", userId, "role", role);
 
@@ -46,19 +47,18 @@ public class JwtProvider {
                 .compact();
     }
 
-    public String createAccessToken(Long userId, String role){
-        return createToken(userId, role, accessExpirationMillis);
-    }
-
     public String createRefreshToken(Long memberId, String role){
-        String token = createToken(memberId, role, refreshExpirationMillis);
+        // 토큰 만료 기간
+        Date now = new Date();
+        Date expiredDate = new Date(now.getTime() + refreshExpirationMillis);
         RefreshToken refreshToken = RefreshToken.builder()
-                                    .token(token)
                                     .memberId(memberId)
                                     .role(role)
+                                    .token(UUID.randomUUID().toString())
+                                    .expiryDate(expiredDate)
                                     .build();
-        refreshTokenService.create(refreshToken);
-        return token;
+        refreshTokenService.createOrUpdate(refreshToken);
+        return refreshToken.getToken();
     }
 
     public Claims getClaims(String token){

@@ -48,7 +48,7 @@ public class CustomOAuthUserService extends DefaultOAuth2UserService {
         List<String> roles = memberRoleService.getList(member.getId());
         List<GrantedAuthority> authorities = new ArrayList<>();
         for (String role : roles) {
-            authorities.add(new SimpleGrantedAuthority(role));
+            authorities.add(new SimpleGrantedAuthority(role.toUpperCase()));
         }
 
         return new CustomUserDetails(member, authorities, oAuthUserInfo.getAttributes(), profileImage.getPath());

@@ -11,4 +11,5 @@ public interface RefreshTokenRepository {
     Optional<RefreshToken> findByMemberId(Long memberId);
     int create(RefreshToken refreshToken);
     void delete(String RefreshToken);
+    int update(RefreshToken refreshToken);
 }

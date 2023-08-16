@@ -4,7 +4,7 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.inthefridges.api.repository.RefreshTokenRepository">
 
-    <select id="findById" resultType="RefreshToken">
+    <select id="findById" parameterType="RefreshToken" resultType="RefreshToken">
         SELECT * FROM refresh_token
         WHERE token = #{token}
         AND deleted_at IS NULL
@@ -21,13 +21,15 @@
         (
             member_id,
             token,
-            role
+            role,
+            expiry_date
         )
         VALUES
         (
             #{memberId},
             #{token},
-            #{role}
+            #{role},
+            #{expiryDate}
         )
     </insert>
 
@@ -38,4 +40,14 @@
         token = #{token} AND
         deleted_at IS NULL
     </delete>
+
+    <update id="update" parameterType="RefreshToken">
+        UPDATE refresh_token
+        <set>
+            token = #{token},
+            role = #{role}
+        </set>
+        WHERE member_id=#{memberId} AND
+        deleted_at IS NULL
+    </update>
 </mapper>
