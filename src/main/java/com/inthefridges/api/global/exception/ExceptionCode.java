@@ -27,7 +27,12 @@ public enum ExceptionCode {
     NOT_FOUND_COOKIE("A007", HttpStatus.UNAUTHORIZED, "쿠키를 찾을 수 없습니다."),
     NOT_FOUND_REFRESH_TOKEN("A008", HttpStatus.NOT_FOUND, "유효하지 않은 리프레쉬 토큰입니다."),
     INVALID_URI("A009", HttpStatus.BAD_REQUEST, "승인되지 않은 리디렉션 URI입니다."),
-    ACCESS_DENIED("A010", HttpStatus.FORBIDDEN, "접근 권한이 없습니다.");
+    ACCESS_DENIED("A010", HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
+    NOT_FOUND_MEMBER("A011", HttpStatus.NOT_FOUND, "회원을 찾을 수 없습니다."),
+    NOT_MATCH_MEMBER("A012", HttpStatus.FORBIDDEN, "일치하지 않는 회원입니다."),
+
+    // Fridge
+    NOT_FOUND_FRIDGE("F001", HttpStatus.NOT_FOUND, "냉장고를 찾을 수 없습니다.");
 
     private String errorCode;
     private HttpStatus status;
