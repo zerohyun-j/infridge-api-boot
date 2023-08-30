@@ -1,10 +1,11 @@
-package com.inthefridges.api.controller.Fridge;
+package com.inthefridges.api.controller.fridge;
 
 import com.inthefridges.api.dto.request.FridgeRequest;
 import com.inthefridges.api.dto.response.FridgeResponse;
 import com.inthefridges.api.entity.CustomUserDetails;
 import com.inthefridges.api.entity.Fridge;
 import com.inthefridges.api.service.FridgeService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/fridge")
+@RequestMapping("/fridges")
 @RequiredArgsConstructor
 public class FridgeController {
 
@@ -32,8 +33,8 @@ public class FridgeController {
     }
 
     @PostMapping
-    public ResponseEntity<FridgeResponse> create(@RequestBody FridgeRequest fridge, @AuthenticationPrincipal CustomUserDetails member){
-        FridgeResponse fridgeResponse = service.create(member.getMember().getId(), Fridge.builder().name(fridge.name()).build());
+    public ResponseEntity<FridgeResponse> create(@Valid @RequestBody FridgeRequest fridgeRequest, @AuthenticationPrincipal CustomUserDetails member){
+        FridgeResponse fridgeResponse = service.create(member.getMember().getId(), fridgeRequest);
         return ResponseEntity.ok(fridgeResponse);
     }
 

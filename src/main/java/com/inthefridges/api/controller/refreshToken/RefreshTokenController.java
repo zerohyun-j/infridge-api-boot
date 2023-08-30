@@ -1,4 +1,4 @@
-package com.inthefridges.api.controller.RefreshToken;
+package com.inthefridges.api.controller.refreshToken;
 
 import com.inthefridges.api.global.security.jwt.JwtService;
 import com.inthefridges.api.global.security.jwt.model.Tokens;

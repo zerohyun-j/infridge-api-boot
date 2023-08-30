@@ -25,7 +25,7 @@
         VALUES
         (
             #{name},
-            #{member_id}
+            #{memberId}
         )
     </insert>
 

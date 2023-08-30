@@ -41,15 +41,22 @@ public class GlobalExceptionHandler {
     }
 
     /** @Valid 예외 처리 */
-    @ResponseStatus(BAD_REQUEST)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleMethodArgumentNotValidException(
-            HttpServletRequest request,
-            BindException e
-    ) {
-        logDebug(request, e);
-        return ErrorResponse.of(ExceptionCode.NOT_VALID);
+            MethodArgumentNotValidException e) {
+
+        return ErrorResponse.of(e.getBindingResult());
     }
+//    @ResponseStatus(BAD_REQUEST)
+//    @ExceptionHandler(MethodArgumentNotValidException.class)
+//    public ErrorResponse handleMethodArgumentNotValidException(
+//            HttpServletRequest request,
+//            BindException e
+//    ) {
+//        logDebug(request, e);
+//        return ErrorResponse.of(ExceptionCode.NOT_VALID);
+//    }
 
     /** @Validated 예외 처리 */
 //    @ResponseStatus(BAD_REQUEST)

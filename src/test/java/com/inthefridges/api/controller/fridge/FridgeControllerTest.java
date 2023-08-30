@@ -1,4 +1,4 @@
-package com.inthefridges.api.controller.Fridge;
+package com.inthefridges.api.controller.fridge;
 
 import com.inthefridges.api.service.FridgeService;
 import org.junit.jupiter.api.DisplayName;
@@ -10,10 +10,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.nio.charset.StandardCharsets;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.BDDMockito.given;
 
 /*
 * @Controller, @RestController가 설정된 클래스들을 찾아 메모리에 생성,

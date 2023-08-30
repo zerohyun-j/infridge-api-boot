@@ -1,5 +1,6 @@
 package com.inthefridges.api.service;
 
+import com.inthefridges.api.dto.request.FridgeRequest;
 import com.inthefridges.api.dto.response.FridgeResponse;
 import com.inthefridges.api.entity.Fridge;
 import com.inthefridges.api.entity.Member;
@@ -7,6 +8,7 @@ import com.inthefridges.api.global.exception.ExceptionCode;
 import com.inthefridges.api.global.exception.ServiceException;
 import com.inthefridges.api.repository.FridgeImageRepository;
 import com.inthefridges.api.repository.FridgeRepository;
+import com.inthefridges.api.repository.FridgeTypeRepository;
 import com.inthefridges.api.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,7 @@ public class DefaultFridgeService implements FridgeService {
     private final FridgeRepository repository;
     private final MemberRepository memberRepository;
     private final FridgeImageRepository fridgeImageRepository;
+    private final FridgeTypeRepository fridgeTypeRepository;
 
     @Override
     public List<FridgeResponse> getList(Long memberId) {
@@ -31,6 +34,20 @@ public class DefaultFridgeService implements FridgeService {
     }
 
     @Override
+    public FridgeResponse create(Long memberId, FridgeRequest fridgeRequest) {
+        Member member = fetchMemberById(memberId);
+        Fridge fridge = Fridge.builder()
+                .name(fridgeRequest.name())
+                .memberId(member.getId())
+                .build();
+        repository.create(fridge);
+//        for(Long typeId : fridgeRequest.type())
+//            fridgeTypeRepository.create(fridge.getId(), typeId);
+
+        return get(fridge.getId());
+    }
+
+    @Override
     public FridgeResponse get(Long id) {
         Fridge fridge = repository.findById(id)
                 .orElseThrow(() -> new ServiceException(ExceptionCode.NOT_FOUND_FRIDGE));
@@ -38,20 +55,15 @@ public class DefaultFridgeService implements FridgeService {
     }
 
     @Override
-    public FridgeResponse create(Long memberId, Fridge fridge) {
-        Member member = fetchMemberById(memberId);
-        fridge.setMemberId(member.getId());
-        repository.create(fridge);
-        return get(fridge.getId());
-    }
-
-    @Override
-    public void update(Long memberId, Fridge fridge) {
+    public FridgeResponse update(Long memberId, Fridge fridge) {
         Member member = fetchMemberById(memberId);
         Fridge fetchFridge = fetchFridgeById(fridge.getId());
-
         validateMemberFridgeMatch(member, fetchFridge);
-        // TODO : 업데이트 고민해보기
+
+        fetchFridge.setName(fridge.getName());
+        repository.update(fetchFridge);
+
+        return get(fetchFridge.getId());
     }
 
     @Override
