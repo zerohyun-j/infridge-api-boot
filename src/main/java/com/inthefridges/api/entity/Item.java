@@ -14,10 +14,12 @@ import java.util.Date;
 public class Item {
     private Long id;
     private String name;
+    private Long memberId;
+    private int quantity;
     private Date expirationAt;
     private Date createdAt;
     private Date updatedAt;
     private Date deletedAt;
-    private Long memberId;
-    private int quantity;
+    private Long fridgeId;
+    private Long categoryId;
 }

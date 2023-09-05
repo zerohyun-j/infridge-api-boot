@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -57,9 +58,10 @@ public class SecurityConfig {
                         .requestMatchers("/img/**", "/image/**", "/images/**").permitAll()
                         .requestMatchers("/font/**", "/fonts/**").permitAll()
                         .requestMatchers("/file/**", "/files/**").permitAll()
+                        .requestMatchers("/api/v*/admin/**").hasAuthority("ADMIN")
+                        .requestMatchers("/api/v*/members/**").hasAnyAuthority("MEMBER","ADMIN")
+                        .requestMatchers("/api/v*/fridges/**").hasAnyAuthority("MEMBER","ADMIN")
                         .requestMatchers("/api/v*/refresh/**").permitAll()
-                        .requestMatchers("/members/**").hasAuthority("MEMBER")
-                        .requestMatchers("/admin/**").hasAuthority("ADMIN")
                         .anyRequest().permitAll())
                 .oauth2Login(oauth2 -> oauth2
                         .authorizationEndpoint(authorizationEndpointConfig ->
