@@ -114,7 +114,7 @@ class DefaultFridgeServiceTest {
         given(repository.update(any())).willReturn(1);
 
         // when
-        FridgeResponse fridgeResponse = service.update(10L, fridge);
+        FridgeResponse fridgeResponse = service.update(1L, 10L, fridge);
 
         // then
         assertThat(fridgeResponse.name()).isEqualTo(fridge.getName());

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/fridges")
+@RequestMapping("/fridges/")
 @RequiredArgsConstructor
 public class FridgeController {
 
@@ -40,7 +40,8 @@ public class FridgeController {
 
     @PutMapping("{id}")
     public ResponseEntity<FridgeResponse> update(@PathVariable Long id, @RequestBody Fridge fridge, @AuthenticationPrincipal CustomUserDetails member){
-        return null;
+        FridgeResponse fridgeResponse = service.update(id, member.getMember().getId(), fridge);
+        return ResponseEntity.ok(fridgeResponse);
     }
 
     @DeleteMapping("{id}")

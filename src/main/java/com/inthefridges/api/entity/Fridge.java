@@ -14,8 +14,8 @@ import java.util.Date;
 public class Fridge {
     private Long id;
     private String name;
+    private Long memberId;
     private Date createdAt;
     private Date updatedAt;
     private Date deletedAt;
-    private Long memberId;
 }

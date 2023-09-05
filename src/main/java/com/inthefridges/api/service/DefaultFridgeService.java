@@ -8,7 +8,6 @@ import com.inthefridges.api.global.exception.ExceptionCode;
 import com.inthefridges.api.global.exception.ServiceException;
 import com.inthefridges.api.repository.FridgeImageRepository;
 import com.inthefridges.api.repository.FridgeRepository;
-import com.inthefridges.api.repository.FridgeTypeRepository;
 import com.inthefridges.api.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,8 +20,6 @@ public class DefaultFridgeService implements FridgeService {
 
     private final FridgeRepository repository;
     private final MemberRepository memberRepository;
-    private final FridgeImageRepository fridgeImageRepository;
-    private final FridgeTypeRepository fridgeTypeRepository;
 
     @Override
     public List<FridgeResponse> getList(Long memberId) {
@@ -41,8 +38,6 @@ public class DefaultFridgeService implements FridgeService {
                 .memberId(member.getId())
                 .build();
         repository.create(fridge);
-//        for(Long typeId : fridgeRequest.type())
-//            fridgeTypeRepository.create(fridge.getId(), typeId);
 
         return get(fridge.getId());
     }
@@ -55,9 +50,9 @@ public class DefaultFridgeService implements FridgeService {
     }
 
     @Override
-    public FridgeResponse update(Long memberId, Fridge fridge) {
+    public FridgeResponse update(Long id, Long memberId, Fridge fridge) {
         Member member = fetchMemberById(memberId);
-        Fridge fetchFridge = fetchFridgeById(fridge.getId());
+        Fridge fetchFridge = fetchFridgeById(id);
         validateMemberFridgeMatch(member, fetchFridge);
 
         fetchFridge.setName(fridge.getName());
