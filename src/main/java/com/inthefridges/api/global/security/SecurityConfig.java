@@ -7,7 +7,6 @@ import com.inthefridges.api.global.security.jwt.filter.ExceptionHandlerFilter;
 import com.inthefridges.api.global.security.jwt.filter.JwtFilter;
 import com.inthefridges.api.global.security.oauth.repository.HttpCookieOAuthAuthorizationRequestRepository;
 import com.inthefridges.api.global.security.oauth.service.CustomOAuthUserService;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -57,9 +56,10 @@ public class SecurityConfig {
                         .requestMatchers("/img/**", "/image/**", "/images/**").permitAll()
                         .requestMatchers("/font/**", "/fonts/**").permitAll()
                         .requestMatchers("/file/**", "/files/**").permitAll()
+                        .requestMatchers("/api/v*/admin/**").hasAuthority("ADMIN")
+                        .requestMatchers("/api/v*/members/**").hasAnyAuthority("MEMBER","ADMIN")
+                        .requestMatchers("/api/v*/fridges/**").hasAnyAuthority("MEMBER","ADMIN")
                         .requestMatchers("/api/v*/refresh/**").permitAll()
-                        .requestMatchers("/members/**").hasAuthority("MEMBER")
-                        .requestMatchers("/admin/**").hasAuthority("ADMIN")
                         .anyRequest().permitAll())
                 .oauth2Login(oauth2 -> oauth2
                         .authorizationEndpoint(authorizationEndpointConfig ->

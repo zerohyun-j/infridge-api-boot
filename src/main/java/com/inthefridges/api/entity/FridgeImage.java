@@ -11,11 +11,10 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Fridge {
-    private Long id;
-    private String name;
-    private Long memberId;
-    private Date createdAt;
-    private Date updatedAt;
-    private Date deletedAt;
+public class FridgeImage {
+    Long id;
+    Long fridgeId;
+    String path;
+    Date createdAt;
+    Date deletedAt;
 }

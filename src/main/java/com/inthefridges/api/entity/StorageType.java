@@ -8,7 +8,7 @@ import java.util.Date;
 
 @Getter
 @AllArgsConstructor
-public class Category {
+public class StorageType {
     private Long id;
     private String name;
     private Date createdAt;

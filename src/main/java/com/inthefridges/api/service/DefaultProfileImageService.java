@@ -40,6 +40,9 @@ public class DefaultProfileImageService implements ProfileImageService {
                 .orElseThrow(() -> new ServiceException(ExceptionCode.NOT_FOUND));
     }
 
+    /**
+     * 현재 프로필 사진 경로와 DB 프로필 사진 경로가 같은 지 확인
+     */
     private Boolean isPathChanged(String currentPath, String inputPath){
         return !inputPath.equals(currentPath);
     }
