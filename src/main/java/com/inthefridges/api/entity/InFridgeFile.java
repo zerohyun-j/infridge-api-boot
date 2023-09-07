@@ -11,10 +11,10 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class File {
+public class InFridgeFile {
     private Long id;
-    private Long postId;
-    private int categoryId;
+    private Long fridgeId;
+    private Long ItemId;
     private String originName;
     private String path;
     private Date createdAt;
