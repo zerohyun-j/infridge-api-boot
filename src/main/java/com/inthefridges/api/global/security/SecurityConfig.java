@@ -59,6 +59,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v*/admin/**").hasAuthority("ADMIN")
                         .requestMatchers("/api/v*/members/**").hasAnyAuthority("MEMBER","ADMIN")
                         .requestMatchers("/api/v*/fridges/**").hasAnyAuthority("MEMBER","ADMIN")
+                        .requestMatchers("/api/v*/files/**").hasAnyAuthority("MEMBER","ADMIN")
                         .requestMatchers("/api/v*/refresh/**").permitAll()
                         .anyRequest().permitAll())
                 .oauth2Login(oauth2 -> oauth2

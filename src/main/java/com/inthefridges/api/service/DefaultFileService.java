@@ -6,6 +6,7 @@ import com.inthefridges.api.global.exception.ServiceException;
 import com.inthefridges.api.repository.FileRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,14 +16,15 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DefaultFileService implements FileService{
 
     private final FileRepository repository;
     @Value("${file.dir}")
-    private final String FILE_DIR;
-    private HttpServletRequest request;
+    private String FILE_DIR;
+    private final HttpServletRequest request;
 
     @Override
     public Long create(MultipartFile requestFile) {
@@ -30,30 +32,34 @@ public class DefaultFileService implements FileService{
         if(requestFile.isEmpty())
             throw new ServiceException(ExceptionCode.MISSING_DATA);
 
-        // /var/lib/tomcat/webapps/WebApplication/resources/dev/2023/09와 같은 path 반환
-        String savePath = createOrGetFolderPathByDate();
+        // resources/dev/2023/09와 같은 path 반환
+        String dateFolderPath = createOrGetFolderPathByDate();
+        StringBuilder saveDirectoryPath = new StringBuilder(getRootDirectory())
+                                    .append(dateFolderPath);
 
         // 클라이언트가 업로드한 파일 이름 추출
-        String originName = requestFile.getOriginalFilename();
+        String originalFileName = requestFile.getOriginalFilename();
 
         // 확장자 추출
-        String extension = originName.substring(originName.lastIndexOf("."));
+        String fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
 
         // DB 저장
-        InFridgeFile file = InFridgeFile.builder()
-                .path(savePath)
-                .originName(originName)
+        InFridgeFile newFile = InFridgeFile.builder()
+                .path(dateFolderPath)
+                .originName(originalFileName)
                 .build();
-        repository.save(file);
+        repository.save(newFile);
 
-        String fileId = String.valueOf(file.getId());
+        String newFileId = String.valueOf(newFile.getId());
         try {
-            requestFile.transferTo(new File(String.join(savePath.replace("\\", "/"), fileId, extension)));
+            String fullPath = saveDirectoryPath.append(newFileId).append(fileExtension).toString();
+            File destination = new File(fullPath);
+            requestFile.transferTo(destination);
         } catch (IOException e) {
             throw new ServiceException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
 
-        return file.getId();
+        return newFile.getId();
     }
 
     /**
@@ -66,14 +72,21 @@ public class DefaultFileService implements FileService{
          * */
         String formattedDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM"));
         String systemFolderPath = formattedDate.replace("/", File.separator);
-        String pathName = String.join(getRootDirectory(), FILE_DIR, systemFolderPath);
+        String pathName = new StringBuilder(getRootDirectory())
+                            .append(FILE_DIR)
+                            .append(systemFolderPath)
+                            .toString();
 
         File uploadFolder = new File(pathName);
 
         if (!uploadFolder.exists())
             uploadFolder.mkdirs(); // 상위 디렉토리가 존재하지 않을 경우에는 상위 디렉토리까지 모두 생성
 
-        return String.join(pathName, File.separator);
+        StringBuilder returnedPath = new StringBuilder(FILE_DIR)
+                                            .append(formattedDate)
+                                            .append(File.separator);
+
+        return returnedPath.toString();
     }
 
     /**
