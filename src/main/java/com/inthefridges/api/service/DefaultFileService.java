@@ -1,5 +1,7 @@
 package com.inthefridges.api.service;
 
+import com.inthefridges.api.dto.request.FileRequest;
+import com.inthefridges.api.dto.response.FileResponse;
 import com.inthefridges.api.entity.InFridgeFile;
 import com.inthefridges.api.global.exception.ExceptionCode;
 import com.inthefridges.api.global.exception.ServiceException;
@@ -27,31 +29,41 @@ public class DefaultFileService implements FileService{
     private final HttpServletRequest request;
 
     @Override
-    public Long create(MultipartFile requestFile) {
+    public FileResponse get(Long memberId, FileRequest fileRequest) {
+        InFridgeFile file = convertToFileEntity(memberId, fileRequest);
+        InFridgeFile fetchFile = fetchFileOrFail(file);
+        return convertToFileResponse(fetchFile);
+    }
+
+    @Override
+    public FileResponse create(Long memberId, MultipartFile requestFile) {
 
         if(requestFile.isEmpty())
             throw new ServiceException(ExceptionCode.MISSING_DATA);
 
         // resources/dev/2023/09와 같은 path 반환
         String dateFolderPath = createOrGetFolderPathByDate();
-        StringBuilder saveDirectoryPath = new StringBuilder(getRootDirectory())
-                                    .append(dateFolderPath);
 
         // 클라이언트가 업로드한 파일 이름 추출
         String originalFileName = requestFile.getOriginalFilename();
-
-        // 확장자 추출
-        String fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
 
         // DB 저장
         InFridgeFile newFile = InFridgeFile.builder()
                 .path(dateFolderPath)
                 .originName(originalFileName)
+                .memberId(memberId)
                 .build();
         repository.save(newFile);
 
         String newFileId = String.valueOf(newFile.getId());
+
         try {
+            // 확장자 추출
+            String fileExtension = getFileExtension(originalFileName);
+            // 실제 파일이 저장 될 경로
+            StringBuilder saveDirectoryPath = new StringBuilder(getRootDirectory())
+                    .append(dateFolderPath);
+
             String fullPath = saveDirectoryPath.append(newFileId).append(fileExtension).toString();
             File destination = new File(fullPath);
             requestFile.transferTo(destination);
@@ -59,7 +71,31 @@ public class DefaultFileService implements FileService{
             throw new ServiceException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
 
-        return newFile.getId();
+        return new FileResponse(newFile.getId(), null, null);
+    }
+
+    @Override
+    public FileResponse update(Long memberId, FileRequest fileRequest) {
+        InFridgeFile requestFile = convertToFileEntity(memberId, fileRequest);
+        InFridgeFile findFile = repository.findById(requestFile)
+                .orElseThrow(() -> new ServiceException(ExceptionCode.NOT_FOUND_FILE));
+
+        if(fileRequest.fridgeId() != null)
+            findFile.setFridgeId(fileRequest.fridgeId());
+        else
+            findFile.setItemId(fileRequest.itemId());
+
+        repository.update(findFile);
+        InFridgeFile updatedFile = fetchFileOrFail(findFile);
+
+        return convertToFileResponse(updatedFile);
+    }
+
+    @Override
+    public void delete(Long memberId, FileRequest fileRequest) {
+        InFridgeFile file = convertToFileEntity(memberId, fileRequest);
+        InFridgeFile findFile = fetchFileOrFail(file);
+        repository.delete(findFile);
     }
 
     /**
@@ -95,5 +131,38 @@ public class DefaultFileService implements FileService{
      */
     private String getRootDirectory(){
         return request.getSession().getServletContext().getRealPath("/");
+    }
+
+    private String getFileExtension(String fileName){
+        return fileName.substring(fileName.lastIndexOf("."));
+    }
+
+    private InFridgeFile fetchFileOrFail(InFridgeFile file){
+        return repository.findByIdAndPostId(file)
+                .orElseThrow(() -> new ServiceException(ExceptionCode.NOT_FOUND_FILE));
+    }
+
+    /**
+     * FileRequest -> InFridgeFile Entity
+     */
+    private InFridgeFile convertToFileEntity(Long memberId, FileRequest fileRequest){
+        return InFridgeFile.builder()
+                .memberId(memberId)
+                .id(fileRequest.id())
+                .fridgeId(fileRequest.fridgeId())
+                .itemId(fileRequest.itemId())
+                .build();
+    }
+
+    /**
+     * InFridgeFile Entity -> FileRequest
+     */
+    private FileResponse convertToFileResponse(InFridgeFile file){
+        String fullPath = new StringBuilder("/")
+                .append(file.getPath())
+                .append(file.getId())
+                .append(getFileExtension(file.getOriginName()))
+                .toString();
+        return new FileResponse(file.getId(), fullPath, file.getOriginName());
     }
 }

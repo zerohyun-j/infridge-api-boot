@@ -14,9 +14,11 @@ import java.util.Date;
 public class InFridgeFile {
     private Long id;
     private Long fridgeId;
-    private Long ItemId;
+    private Long itemId;
+    private Long memberId;
     private String originName;
     private String path;
     private Date createdAt;
+    private Date updatedAt;
     private Date deletedAt;
 }

@@ -32,7 +32,10 @@ public enum ExceptionCode {
     NOT_MATCH_MEMBER("A012", HttpStatus.FORBIDDEN, "일치하지 않는 회원입니다."),
 
     // Fridge
-    NOT_FOUND_FRIDGE("F001", HttpStatus.NOT_FOUND, "냉장고를 찾을 수 없습니다.");
+    NOT_FOUND_FRIDGE("FR001", HttpStatus.NOT_FOUND, "냉장고를 찾을 수 없습니다."),
+
+    // File
+    NOT_FOUND_FILE("FI001", HttpStatus.NOT_FOUND, "파일을 찾을 수 없습니다.");
 
     private String errorCode;
     private HttpStatus status;
