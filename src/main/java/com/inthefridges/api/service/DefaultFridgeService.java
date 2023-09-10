@@ -6,6 +6,7 @@ import com.inthefridges.api.entity.Fridge;
 import com.inthefridges.api.entity.Member;
 import com.inthefridges.api.global.exception.ExceptionCode;
 import com.inthefridges.api.global.exception.ServiceException;
+import com.inthefridges.api.repository.FileRepository;
 import com.inthefridges.api.repository.FridgeRepository;
 import com.inthefridges.api.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,7 @@ public class DefaultFridgeService implements FridgeService {
         List<Fridge> fridges = repository.findByMemberId(memberId);
         return fridges
                 .stream()
-                .map(fridge -> new FridgeResponse(fridge.getId(), fridge.getName(), null, null))
+                .map(fridge -> convertToFridgeResponse(fridge))
                 .toList();
     }
 
@@ -38,14 +39,14 @@ public class DefaultFridgeService implements FridgeService {
                 .build();
         repository.create(fridge);
 
-        return get(fridge.getId());
+        Fridge fetchFridge = fetchFridgeById(fridge.getId());
+        return convertToFridgeResponse(fetchFridge);
     }
 
     @Override
     public FridgeResponse get(Long id) {
-        Fridge fridge = repository.findById(id)
-                .orElseThrow(() -> new ServiceException(ExceptionCode.NOT_FOUND_FRIDGE));
-        return new FridgeResponse(fridge.getId(), fridge.getName(), null, null);
+        Fridge fridge = fetchFridgeById(id);
+        return convertToFridgeResponse(fridge);
     }
 
     @Override
@@ -56,18 +57,25 @@ public class DefaultFridgeService implements FridgeService {
 
         fetchFridge.setName(fridge.getName());
         repository.update(fetchFridge);
-
-        return get(fetchFridge.getId());
+        Fridge updatedFridge = fetchFridgeById(id);
+        return convertToFridgeResponse(updatedFridge);
     }
 
     @Override
     public void delete(Long id, Long memberId) {
         Member member = fetchMemberById(memberId);
         Fridge fetchFridge = fetchFridgeById(id);
-
         validateMemberFridgeMatch(member, fetchFridge);
         repository.delete(id);
     }
+
+    /**
+     * Fridge Entity -> FridgeResponse
+     */
+    private FridgeResponse convertToFridgeResponse(Fridge fridge){
+        return new FridgeResponse(fridge.getId(), fridge.getName(), null);
+    }
+
 
     /**
      * fridgeId 로 fridge 찾기

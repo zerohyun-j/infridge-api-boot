@@ -5,7 +5,6 @@ import java.util.Date;
 public record FridgeResponse(
         Long id,
         String name,
-        String img,
         Date deadLine
 ) {
 }
