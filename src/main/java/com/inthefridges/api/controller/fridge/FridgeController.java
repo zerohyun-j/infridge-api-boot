@@ -29,8 +29,8 @@ public class FridgeController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<FridgeResponse> get(@PathVariable Long id){
-        FridgeResponse fridgeResponse = service.get(id);
+    public ResponseEntity<FridgeResponse> get(@AuthenticationPrincipal JwtAuthentication member, @PathVariable Long id){
+        FridgeResponse fridgeResponse = service.get(member.id(), id);
         return ResponseEntity.ok(fridgeResponse);
     }
 
