@@ -3,9 +3,11 @@ package com.inthefridges.api.service;
 import com.inthefridges.api.dto.request.FileRequest;
 import com.inthefridges.api.dto.response.FileResponse;
 import com.inthefridges.api.entity.InFridgeFile;
+import com.inthefridges.api.entity.Member;
 import com.inthefridges.api.global.exception.ExceptionCode;
 import com.inthefridges.api.global.exception.ServiceException;
 import com.inthefridges.api.repository.FileRepository;
+import com.inthefridges.api.repository.MemberRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +26,7 @@ import java.time.format.DateTimeFormatter;
 public class DefaultFileService implements FileService{
 
     private final FileRepository repository;
+    private final MemberRepository memberRepository;
     @Value("${file.dir}")
     private String FILE_DIR;
     private final HttpServletRequest request;
@@ -31,7 +34,12 @@ public class DefaultFileService implements FileService{
     @Override
     public FileResponse get(Long memberId, FileRequest fileRequest) {
         InFridgeFile file = convertToFileEntity(memberId, fileRequest);
-        InFridgeFile fetchFile = fetchFileOrFail(file);
+
+        // 삭제하려는 회원과 삭제 파일 회원 검증
+        Member member = fetchMemberById(memberId);
+        InFridgeFile fetchFile = fetchFileByIdAndPostId(file);
+        validateMemberFileMatch(member, fetchFile);
+
         return convertToFileResponse(fetchFile);
     }
 
@@ -76,9 +84,13 @@ public class DefaultFileService implements FileService{
 
     @Override
     public FileResponse update(Long memberId, FileRequest fileRequest) {
-        InFridgeFile requestFile = convertToFileEntity(memberId, fileRequest);
-        InFridgeFile findFile = repository.findById(requestFile)
+        InFridgeFile file = convertToFileEntity(memberId, fileRequest);
+
+        // 삭제하려는 회원과 삭제 파일 회원 검증
+        Member member = fetchMemberById(memberId);
+        InFridgeFile findFile = repository.findById(file)
                 .orElseThrow(() -> new ServiceException(ExceptionCode.NOT_FOUND_FILE));
+        validateMemberFileMatch(member, findFile);
 
         if(fileRequest.fridgeId() != null)
             findFile.setFridgeId(fileRequest.fridgeId());
@@ -86,7 +98,7 @@ public class DefaultFileService implements FileService{
             findFile.setItemId(fileRequest.itemId());
 
         repository.update(findFile);
-        InFridgeFile updatedFile = fetchFileOrFail(findFile);
+        InFridgeFile updatedFile = fetchFileByIdAndPostId(findFile);
 
         return convertToFileResponse(updatedFile);
     }
@@ -94,7 +106,12 @@ public class DefaultFileService implements FileService{
     @Override
     public void delete(Long memberId, FileRequest fileRequest) {
         InFridgeFile file = convertToFileEntity(memberId, fileRequest);
-        InFridgeFile findFile = fetchFileOrFail(file);
+
+        // 삭제하려는 회원과 삭제 파일 회원 검증
+        Member member = fetchMemberById(memberId);
+        InFridgeFile findFile = fetchFileByIdAndPostId(file);
+        validateMemberFileMatch(member, findFile);
+
         repository.delete(findFile);
     }
 
@@ -137,7 +154,7 @@ public class DefaultFileService implements FileService{
         return fileName.substring(fileName.lastIndexOf("."));
     }
 
-    private InFridgeFile fetchFileOrFail(InFridgeFile file){
+    private InFridgeFile fetchFileByIdAndPostId(InFridgeFile file){
         return repository.findByIdAndPostId(file)
                 .orElseThrow(() -> new ServiceException(ExceptionCode.NOT_FOUND_FILE));
     }
@@ -164,5 +181,25 @@ public class DefaultFileService implements FileService{
                 .append(getFileExtension(file.getOriginName()))
                 .toString();
         return new FileResponse(file.getId(), fullPath, file.getOriginName());
+    }
+
+    /**
+     * memberId 로 member 찾기
+     * @param memberId principal's memberId
+     * @return Member
+     */
+    private Member fetchMemberById(Long memberId) {
+        return memberRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new ServiceException(ExceptionCode.NOT_FOUND_MEMBER));
+    }
+
+    /**
+     * principal memberId 와 접근 파일의 작성자 memberId 가 같은지 비교
+     * @param member principal's memberId
+     * @param file 접근하고자하는 파일
+     */
+    private void validateMemberFileMatch(Member member, InFridgeFile file) {
+        if (!file.getMemberId().equals(member.getId()))
+            throw new ServiceException(ExceptionCode.NOT_MATCH_MEMBER);
     }
 }
