@@ -6,7 +6,6 @@ import com.inthefridges.api.entity.Fridge;
 import com.inthefridges.api.entity.Member;
 import com.inthefridges.api.global.exception.ExceptionCode;
 import com.inthefridges.api.global.exception.ServiceException;
-import com.inthefridges.api.repository.FridgeImageRepository;
 import com.inthefridges.api.repository.FridgeRepository;
 import com.inthefridges.api.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -73,7 +72,7 @@ public class DefaultFridgeService implements FridgeService {
     /**
      * fridgeId 로 fridge 찾기
      * @param id fridgeId
-     * @return FridgeEntity
+     * @return Fridge
      */
     private Fridge fetchFridgeById(Long id) {
         return repository.findById(id)
