@@ -7,14 +7,12 @@
     <select id="findById">
         SELECT * FROM file
         WHERE id = #{id}
-        AND member_id = #{memberId}
         AND deleted_at IS NULL
     </select>
 
     <select id="findByIdAndPostId" resultType="InFridgeFile">
         SELECT * FROM file
         WHERE id = #{id}
-        AND member_id = #{memberId}
         <choose>
             <!-- 둘 중 하나만 값이 있는 경우 -->
             <when test="fridgeId != null and itemId == null">
