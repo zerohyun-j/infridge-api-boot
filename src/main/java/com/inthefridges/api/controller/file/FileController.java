@@ -6,6 +6,7 @@ import com.inthefridges.api.global.security.jwt.model.JwtAuthentication;
 import com.inthefridges.api.service.FileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +29,7 @@ public class FileController {
     @PostMapping
     public ResponseEntity<FileResponse> create(@AuthenticationPrincipal JwtAuthentication member, @RequestPart(value="file") MultipartFile file){
         FileResponse fileResponse = service.create(member.id(), file);
-        return ResponseEntity.ok(fileResponse);
+        return ResponseEntity.status(HttpStatus.CREATED).body(fileResponse);
     }
 
     @PutMapping
