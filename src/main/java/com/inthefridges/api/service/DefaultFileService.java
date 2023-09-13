@@ -44,6 +44,24 @@ public class DefaultFileService implements FileService{
     }
 
     @Override
+    public InFridgeFile getProfileImageAndUpdate(InFridgeFile file) {
+        InFridgeFile fetchFile = repository.findByMemberId(file.getMemberId())
+                .orElseThrow(() -> new ServiceException(ExceptionCode.NOT_FOUND_FILE));
+
+        // TODO : 리팩토링
+        // OAuth Profile Path
+        if(!fetchFile.getOriginName().equals(fetchFile.getPath()))
+            // 현재 profileImage != 기존 profileImage
+            if (!file.getOriginName().equals(fetchFile.getOriginName())) {
+                repository.delete(fetchFile);
+                repository.save(file);
+                return file;
+            }
+
+        return fetchFile;
+    }
+
+    @Override
     public FileResponse create(Long memberId, MultipartFile requestFile) {
 
         if(requestFile.isEmpty())
