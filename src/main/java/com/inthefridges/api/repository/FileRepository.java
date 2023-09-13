@@ -9,6 +9,7 @@ import java.util.Optional;
 public interface FileRepository {
     void save(InFridgeFile file);
     Optional<InFridgeFile> findById(InFridgeFile file);
+    Optional<InFridgeFile> findByMemberId(Long memberId);
     Optional<InFridgeFile> findByIdAndPostId(InFridgeFile file);
     int update(InFridgeFile file);
     void delete(InFridgeFile file);

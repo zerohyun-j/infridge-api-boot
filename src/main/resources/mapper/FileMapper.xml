@@ -10,6 +10,14 @@
         AND deleted_at IS NULL
     </select>
 
+    <select id="findByMemberId">
+        SELECT * FROM file
+        WHERE member_id = #{memberId}
+        AND fridge_id IS NULL
+        AND item_id IS NULL
+        AND deleted_at IS NULL
+    </select>
+
     <select id="findByIdAndPostId" resultType="InFridgeFile">
         SELECT * FROM file
         WHERE id = #{id}
@@ -74,19 +82,12 @@
         UPDATE file
         SET deleted_at = NOW()
         WHERE id = #{id}
-        <choose>
-            <!-- 둘 중 하나만 값이 있는 경우 -->
-            <when test="fridgeId != null and itemId == null">
-                AND fridge_id = #{fridgeId}
-            </when>
-            <when test="itemId != null and fridgeId == null">
-                AND item_id = #{itemId}
-            </when>
-            <!-- 둘 다 값이 있거나, 둘 다 값이 없는 경우 -->
-            <otherwise>
-                AND 1 = 0
-            </otherwise>
-        </choose>
+        <if test="fridgeId != null">
+            AND fridge_id = #{fridgeId},
+        </if>
+        <if test="itemId != null">
+            AND item_id = #{itemId},
+        </if>
         AND deleted_at IS NULL
     </delete>
 
