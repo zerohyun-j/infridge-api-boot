@@ -6,7 +6,6 @@ import com.inthefridges.api.entity.Fridge;
 import com.inthefridges.api.entity.Member;
 import com.inthefridges.api.global.exception.ExceptionCode;
 import com.inthefridges.api.global.exception.ServiceException;
-import com.inthefridges.api.repository.FileRepository;
 import com.inthefridges.api.repository.FridgeRepository;
 import com.inthefridges.api.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +30,14 @@ public class DefaultFridgeService implements FridgeService {
     }
 
     @Override
+    public FridgeResponse get(Long memberId, Long id) {
+        Member member = fetchMemberById(memberId);
+        Fridge fridge = fetchFridgeById(id);
+        validateMemberFridgeMatch(member, fridge);
+        return convertToFridgeResponse(fridge);
+    }
+
+    @Override
     public FridgeResponse create(Long memberId, FridgeRequest fridgeRequest) {
         Member member = fetchMemberById(memberId);
         Fridge fridge = Fridge.builder()
@@ -41,12 +48,6 @@ public class DefaultFridgeService implements FridgeService {
 
         Fridge fetchFridge = fetchFridgeById(fridge.getId());
         return convertToFridgeResponse(fetchFridge);
-    }
-
-    @Override
-    public FridgeResponse get(Long id) {
-        Fridge fridge = fetchFridgeById(id);
-        return convertToFridgeResponse(fridge);
     }
 
     @Override

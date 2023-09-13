@@ -8,6 +8,7 @@ import com.inthefridges.api.service.FridgeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -29,15 +30,15 @@ public class FridgeController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<FridgeResponse> get(@PathVariable Long id){
-        FridgeResponse fridgeResponse = service.get(id);
+    public ResponseEntity<FridgeResponse> get(@AuthenticationPrincipal JwtAuthentication member, @PathVariable Long id){
+        FridgeResponse fridgeResponse = service.get(member.id(), id);
         return ResponseEntity.ok(fridgeResponse);
     }
 
     @PostMapping
     public ResponseEntity<FridgeResponse> create(@Valid @RequestBody FridgeRequest fridgeRequest, @AuthenticationPrincipal JwtAuthentication member){
         FridgeResponse fridgeResponse = service.create(member.id(), fridgeRequest);
-        return ResponseEntity.ok(fridgeResponse);
+        return ResponseEntity.status(HttpStatus.CREATED).body(fridgeResponse);
     }
 
     @PutMapping("/{id}")
