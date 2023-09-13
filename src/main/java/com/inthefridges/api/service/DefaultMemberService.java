@@ -19,7 +19,7 @@ import java.util.List;
 public class DefaultMemberService implements MemberService{
     private final MemberRepository repository;
     private final SocialRepository socialRepository;
-    private final ProfileImageRepository profileImageRepository;
+    private final FileRepository fileRepository;
     private final RoleRepository roleRepository;
     private final MemberRoleRepository memberRoleRepository;
     private static final String DEFAULT_ROLE = "MEMBER";
@@ -48,11 +48,13 @@ public class DefaultMemberService implements MemberService{
                         .build();
         repository.create(member);
 
-        ProfileImage profileImage = ProfileImage.builder()
-                                    .path(oAuthUserInfo.getProfileImageUrl())
+        String path = oAuthUserInfo.getProfileImageUrl();
+        InFridgeFile profileImage = InFridgeFile.builder()
+                                    .path(path)
+                                    .originName(path)
                                     .memberId(member.getId())
                                     .build();
-        profileImageRepository.create(profileImage);
+        fileRepository.save(profileImage);
 
         Role role = roleRepository.findByRoleName(DEFAULT_ROLE.toLowerCase())
                 .orElseThrow(() -> new ServiceException(ExceptionCode.NOT_FOUND));
@@ -69,9 +71,9 @@ public class DefaultMemberService implements MemberService{
     @Override
     public MemberResponse getProfile(Long id) {
         Member member = repository.findByMemberId(id)
-                .orElseThrow(() -> new ServiceException(ExceptionCode.NOT_FOUND));
-        ProfileImage profileImage = profileImageRepository.findByMemberId(id)
-                .orElse(new ProfileImage());
+                .orElseThrow(() -> new ServiceException(ExceptionCode.NOT_FOUND_MEMBER));
+        InFridgeFile profileImage = fileRepository.findByMemberId(id)
+                                    .orElse(new InFridgeFile());
         List<String> roles = memberRoleRepository.findByMemberId(member.getId());
         return new MemberResponse(member.getId(), member.getUsername(), profileImage.getPath(), roles);
     }
