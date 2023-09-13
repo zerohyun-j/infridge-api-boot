@@ -79,7 +79,7 @@ public class DefaultFileService implements FileService{
             throw new ServiceException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
 
-        return new FileResponse(newFile.getId(), null, null);
+        return new FileResponse(newFile.getId(), dateFolderPath, originalFileName);
     }
 
     @Override
@@ -160,6 +160,26 @@ public class DefaultFileService implements FileService{
     }
 
     /**
+     * memberId 로 member 찾기
+     * @param memberId principal's memberId
+     * @return Member
+     */
+    private Member fetchMemberById(Long memberId) {
+        return memberRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new ServiceException(ExceptionCode.NOT_FOUND_MEMBER));
+    }
+
+    /**
+     * principal memberId 와 접근 파일의 작성자 memberId 가 같은지 비교
+     * @param member principal's memberId
+     * @param file 접근하고자하는 파일
+     */
+    private void validateMemberFileMatch(Member member, InFridgeFile file) {
+        if (!file.getMemberId().equals(member.getId()))
+            throw new ServiceException(ExceptionCode.NOT_MATCH_MEMBER);
+    }
+
+    /**
      * FileRequest -> InFridgeFile Entity
      */
     private InFridgeFile convertToFileEntity(Long memberId, FileRequest fileRequest){
@@ -181,25 +201,5 @@ public class DefaultFileService implements FileService{
                 .append(getFileExtension(file.getOriginName()))
                 .toString();
         return new FileResponse(file.getId(), fullPath, file.getOriginName());
-    }
-
-    /**
-     * memberId 로 member 찾기
-     * @param memberId principal's memberId
-     * @return Member
-     */
-    private Member fetchMemberById(Long memberId) {
-        return memberRepository.findByMemberId(memberId)
-                .orElseThrow(() -> new ServiceException(ExceptionCode.NOT_FOUND_MEMBER));
-    }
-
-    /**
-     * principal memberId 와 접근 파일의 작성자 memberId 가 같은지 비교
-     * @param member principal's memberId
-     * @param file 접근하고자하는 파일
-     */
-    private void validateMemberFileMatch(Member member, InFridgeFile file) {
-        if (!file.getMemberId().equals(member.getId()))
-            throw new ServiceException(ExceptionCode.NOT_MATCH_MEMBER);
     }
 }
