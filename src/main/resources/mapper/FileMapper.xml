@@ -10,6 +10,14 @@
         AND deleted_at IS NULL
     </select>
 
+    <select id="findByMemberId">
+        SELECT * FROM file
+        WHERE member_id = #{memberId}
+        AND fridge_id IS NULL
+        AND item_id IS NULL
+        AND deleted_at IS NULL
+    </select>
+
     <select id="findByIdAndPostId" resultType="InFridgeFile">
         SELECT * FROM file
         WHERE id = #{id}
