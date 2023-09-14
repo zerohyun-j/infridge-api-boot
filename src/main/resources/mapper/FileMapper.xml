@@ -13,6 +13,7 @@
     <select id="findByMemberId">
         SELECT * FROM file
         WHERE member_id = #{memberId}
+        AND profile = 1
         AND fridge_id IS NULL
         AND item_id IS NULL
         AND deleted_at IS NULL
@@ -83,10 +84,10 @@
         SET deleted_at = NOW()
         WHERE id = #{id}
         <if test="fridgeId != null">
-            AND fridge_id = #{fridgeId},
+            AND fridge_id = #{fridgeId}
         </if>
         <if test="itemId != null">
-            AND item_id = #{itemId},
+            AND item_id = #{itemId}
         </if>
         AND deleted_at IS NULL
     </delete>

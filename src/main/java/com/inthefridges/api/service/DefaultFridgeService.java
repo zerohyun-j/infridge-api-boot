@@ -3,22 +3,27 @@ package com.inthefridges.api.service;
 import com.inthefridges.api.dto.request.FridgeRequest;
 import com.inthefridges.api.dto.response.FridgeResponse;
 import com.inthefridges.api.entity.Fridge;
+import com.inthefridges.api.entity.InFridgeFile;
 import com.inthefridges.api.entity.Member;
 import com.inthefridges.api.global.exception.ExceptionCode;
 import com.inthefridges.api.global.exception.ServiceException;
+import com.inthefridges.api.repository.FileRepository;
 import com.inthefridges.api.repository.FridgeRepository;
 import com.inthefridges.api.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DefaultFridgeService implements FridgeService {
 
     private final FridgeRepository repository;
     private final MemberRepository memberRepository;
+    private final FileRepository fileRepository;
 
     @Override
     public List<FridgeResponse> getList(Long memberId) {
@@ -45,6 +50,17 @@ public class DefaultFridgeService implements FridgeService {
                 .memberId(member.getId())
                 .build();
         repository.create(fridge);
+
+        // 냉장고 이미지 등록
+        if(fridgeRequest.fileId() != null) {
+            InFridgeFile file = fileRepository.findById(InFridgeFile.builder()
+                                                        .id(fridgeRequest.fileId())
+                                                        .build())
+                    .orElseThrow(() -> new ServiceException(ExceptionCode.NOT_FOUND_FILE));
+            file.setId(fridgeRequest.fileId());
+            file.setFridgeId(fridge.getId());
+            fileRepository.update(file);
+        }
 
         Fridge fetchFridge = fetchFridgeById(fridge.getId());
         return convertToFridgeResponse(fetchFridge);
