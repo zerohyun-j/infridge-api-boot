@@ -1,13 +1,13 @@
 package com.inthefridges.api.global.security.oauth.service;
 
 import com.inthefridges.api.entity.CustomUserDetails;
+import com.inthefridges.api.entity.InFridgeFile;
 import com.inthefridges.api.entity.Member;
-import com.inthefridges.api.entity.ProfileImage;
 import com.inthefridges.api.global.security.oauth.user.OAuthUserInfo;
 import com.inthefridges.api.global.security.oauth.user.OAuthUserProvider;
+import com.inthefridges.api.service.FileService;
 import com.inthefridges.api.service.MemberRoleService;
 import com.inthefridges.api.service.MemberService;
-import com.inthefridges.api.service.ProfileImageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
@@ -26,7 +26,7 @@ import java.util.List;
 public class CustomOAuthUserService extends DefaultOAuth2UserService {
 
     private final MemberService memberService;
-    private final ProfileImageService profileImageService;
+    private final FileService fileService;
     private final MemberRoleService memberRoleService;
 
     @Override
@@ -39,9 +39,11 @@ public class CustomOAuthUserService extends DefaultOAuth2UserService {
         // 회원 조회 및 저장
         Member member = memberService.getOrCreate(oAuthUserInfo);
 
+        String profileImagePath = oAuthUserInfo.getProfileImageUrl();
         // 조회된 멤버의 아이디로 프로필 이미지, 권한 조회
-        ProfileImage profileImage = profileImageService.getAndUpdate(ProfileImage.builder()
-                                                    .path(oAuthUserInfo.getProfileImageUrl())
+        InFridgeFile profileImage = fileService.getProfileImageAndUpdate(InFridgeFile.builder()
+                                                    .path(profileImagePath)
+                                                    .originName(profileImagePath)
                                                     .memberId(member.getId())
                                                     .build()
                                                 );
