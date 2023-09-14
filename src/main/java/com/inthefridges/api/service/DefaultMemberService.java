@@ -46,7 +46,7 @@ public class DefaultMemberService implements MemberService{
                         .socialTypeId(social.getId())
                         .username(oAuthUserInfo.getEmail().substring(0,oAuthUserInfo.getEmail().indexOf("@")))
                         .build();
-        repository.create(member);
+        repository.save(member);
 
         String path = oAuthUserInfo.getProfileImageUrl();
         InFridgeFile profileImage = InFridgeFile.builder()
@@ -58,7 +58,7 @@ public class DefaultMemberService implements MemberService{
 
         Role role = roleRepository.findByRoleName(DEFAULT_ROLE.toLowerCase())
                 .orElseThrow(() -> new ServiceException(ExceptionCode.NOT_FOUND));
-        memberRoleRepository.create(
+        memberRoleRepository.save(
                 MemberRole.builder()
                         .memberId(member.getId())
                         .roleId(role.getId())

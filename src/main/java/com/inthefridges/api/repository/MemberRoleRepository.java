@@ -7,6 +7,6 @@ import java.util.List;
 
 @Mapper
 public interface MemberRoleRepository {
-    int create(MemberRole memberRole);
+    int save(MemberRole memberRole);
     List<String> findByMemberId(Long memberId);
 }

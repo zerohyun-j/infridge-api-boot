@@ -16,7 +16,7 @@
         AND deleted_at IS NULL
     </select>
 
-    <insert id="create" parameterType="Fridge" useGeneratedKeys="true" keyProperty="id">
+    <insert id="save" parameterType="Fridge" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO fridge
         (
             name,

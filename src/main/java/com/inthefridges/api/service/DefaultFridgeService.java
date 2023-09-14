@@ -49,7 +49,7 @@ public class DefaultFridgeService implements FridgeService {
                 .name(fridgeRequest.name())
                 .memberId(member.getId())
                 .build();
-        repository.create(fridge);
+        repository.save(fridge);
 
         // 냉장고 이미지 등록
         if(fridgeRequest.fileId() != null) {

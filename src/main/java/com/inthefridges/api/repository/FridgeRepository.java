@@ -10,7 +10,7 @@ import java.util.Optional;
 public interface FridgeRepository {
     List<Fridge> findByMemberId(Long memberId);
     Optional<Fridge> findById(Long id);
-    int create(Fridge fridge);
+    int save(Fridge fridge);
     int update(Fridge fridge);
     int delete(Long id);
 }

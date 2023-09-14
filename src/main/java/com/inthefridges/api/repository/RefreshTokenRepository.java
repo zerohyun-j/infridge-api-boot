@@ -9,7 +9,7 @@ import java.util.Optional;
 public interface RefreshTokenRepository {
     Optional<RefreshToken> findById(String refreshToken);
     Optional<RefreshToken> findByMemberId(Long memberId);
-    int create(RefreshToken refreshToken);
+    int save(RefreshToken refreshToken);
     void delete(String RefreshToken);
     int update(RefreshToken refreshToken);
 }
