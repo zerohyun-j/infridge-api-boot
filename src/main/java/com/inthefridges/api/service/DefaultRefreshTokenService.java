@@ -19,7 +19,7 @@ public class DefaultRefreshTokenService implements RefreshTokenService{
         repository.findByMemberId(refreshToken.getMemberId())
                 .ifPresentOrElse(
                         existingToken -> repository.update(refreshToken),
-                        () -> repository.create(refreshToken)
+                        () -> repository.save(refreshToken)
                 );
     }
 

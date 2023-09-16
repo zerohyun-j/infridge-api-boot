@@ -9,5 +9,5 @@ import java.util.Optional;
 public interface MemberRepository {
     Optional<Member> findByMemberId(Long id);
     Optional<Member> findBySocialId(String id);
-    int create(Member Member);
+    int save(Member Member);
 }
