@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.inthefridges.api.repository.ItemRepository">
+
+    <select id="findById" resultType="Item">
+        SELECT * FROM item
+        WHERE id = #{id}
+        AND deleted_at IS NULL
+    </select>
+
+    <select id="findByIdAndFridgeId" resultType="Item">
+        SELECT * FROM item
+        WHERE id = #{id}
+        AND fridge_id = #{fridgeId}
+        AND deleted_at IS NULL
+    </select>
+
+    <select id="findAllByFridgeIdAndStorageId" resultType="Item">
+        SELECT * FROM item
+        WHERE fridge_id = #{fridgeId}
+        AND storage_id = #{storageId}
+        AND deleted_at IS NULL
+    </select>
+
+
+    <insert id="save" parameterType="Item" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO item
+        (
+            name,
+            member_id,
+            quantity,
+            expiration_at,
+            fridge_id,
+            category_id,
+            storage_id
+        )
+        VALUES
+        (
+            #{name},
+            #{memberId},
+            #{quantity},
+            #{expirationAt},
+            #{fridgeId},
+            #{categoryId},
+            #{storageId}
+        )
+    </insert>
+
+    <delete id="delete">
+        UPDATE item
+        SET deleted_at = NOW()
+        WHERE id = #{id}
+        AND fridge_id = #{fridgeId}
+        AND deleted_at IS NULL
+    </delete>
+
+    <update id="update" parameterType="Item">
+        UPDATE item
+        <set>
+            name = #{name},
+            quantity = #{quantity},
+            expiration_at = #{expirationAt},
+            fridge_id = #{fridgeId},
+            storage_id = #{storageId}
+        </set>
+        WHERE id = #{id}
+        AND deleted_at IS NULL
+    </update>
+</mapper>

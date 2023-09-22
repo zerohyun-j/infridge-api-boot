@@ -59,11 +59,17 @@ class DefaultFridgeServiceTest {
     @DisplayName("냉장고 아이디로 냉장고 조회 성공")
     void get() {
         // given
-        Fridge fridge = Fridge.builder().name("냉장고").memberId(10L).build();
+        Fridge fridge = Fridge.builder()
+                .name("냉장고")
+                .memberId(10L)
+                .build();
+        Member member = Member.builder()
+                .id(1L)
+                .build();
         given(repository.findById(anyLong())).willReturn(Optional.ofNullable(fridge));
 
         // when
-        FridgeResponse fridgeResponse = service.get(10L);
+        FridgeResponse fridgeResponse = service.get(member.getId(), 10L);
 
         // then
         assertThat(fridgeResponse.name()).isEqualTo(fridge.getName());
@@ -74,14 +80,14 @@ class DefaultFridgeServiceTest {
     @DisplayName("냉장고 등록 성공")
     void create() {
         // given
-        FridgeRequest fridgeRequest = new FridgeRequest("토리냉장고");
+        FridgeRequest fridgeRequest = new FridgeRequest("토리냉장고", null);
         Fridge fridge = createFridgeEntity(fridgeRequest);
         Member member = Member.builder()
                         .id(1L)
                         .build();
 
         given(memberRepository.findByMemberId(anyLong())).willReturn(Optional.ofNullable(member));
-        given(repository.create(any())).willReturn(1);
+        given(repository.save(any())).willReturn(1);
         given(repository.findById(anyLong()+1)).willReturn(Optional.ofNullable(fridge));
 
         // when

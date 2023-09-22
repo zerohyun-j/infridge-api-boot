@@ -35,7 +35,17 @@ public enum ExceptionCode {
     NOT_FOUND_FRIDGE("FR001", HttpStatus.NOT_FOUND, "냉장고를 찾을 수 없습니다."),
 
     // File
-    NOT_FOUND_FILE("FI001", HttpStatus.NOT_FOUND, "파일을 찾을 수 없습니다.");
+    NOT_FOUND_FILE("FI001", HttpStatus.NOT_FOUND, "파일을 찾을 수 없습니다."),
+
+    // Category
+    NOT_FOUND_CATEGORY("CT001", HttpStatus.NOT_FOUND, "카테고리를 찾을 수 없습니다."),
+
+    // StorageType
+    NOT_FOUND_STORAGE_TYPE("S001", HttpStatus.NOT_FOUND, "저장 타입을 찾을 수 없습니다."),
+
+    // Item
+    NOT_FOUND_ITEM("I001", HttpStatus.NOT_FOUND, "식품을 찾을 수 없습니다."),;
+
 
     private String errorCode;
     private HttpStatus status;

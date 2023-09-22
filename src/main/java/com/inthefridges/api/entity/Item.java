@@ -17,9 +17,10 @@ public class Item {
     private Long memberId;
     private int quantity;
     private Date expirationAt;
+    private Long fridgeId;
+    private int categoryId;
+    private int storageId;
     private Date createdAt;
     private Date updatedAt;
     private Date deletedAt;
-    private Long fridgeId;
-    private Long categoryId;
 }

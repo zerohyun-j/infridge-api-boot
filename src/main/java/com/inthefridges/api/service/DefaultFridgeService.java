@@ -22,8 +22,8 @@ import java.util.List;
 public class DefaultFridgeService implements FridgeService {
 
     private final FridgeRepository repository;
-    private final MemberRepository memberRepository;
     private final FileRepository fileRepository;
+    private final MemberRepository memberRepository;
 
     @Override
     public List<FridgeResponse> getList(Long memberId) {
@@ -87,19 +87,11 @@ public class DefaultFridgeService implements FridgeService {
     }
 
     /**
-     * Fridge Entity -> FridgeResponse
-     */
-    private FridgeResponse convertToFridgeResponse(Fridge fridge){
-        return new FridgeResponse(fridge.getId(), fridge.getName(), null);
-    }
-
-
-    /**
      * fridgeId 로 fridge 찾기
      * @param id fridgeId
      * @return Fridge
      */
-    private Fridge fetchFridgeById(Long id) {
+    public Fridge fetchFridgeById(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ServiceException(ExceptionCode.NOT_FOUND_FRIDGE));
     }
@@ -109,18 +101,28 @@ public class DefaultFridgeService implements FridgeService {
      * @param memberId principal's memberId
      * @return Member
      */
-    private Member fetchMemberById(Long memberId) {
+    public Member fetchMemberById(Long memberId) {
         return memberRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new ServiceException(ExceptionCode.NOT_FOUND_MEMBER));
     }
 
     /**
-     * principal memberId 와 수정하려는 냉장고의 작성자 memberId 가 같은지 비교
+     * principal memberId 와 접근하려는 냉장고의 등록자 memberId 가 같은지 비교
      * @param member principal's memberId
-     * @param fridge 수정하려는 냉장고
+     * @param fridge 접근하려는 냉장고
      */
-    private void validateMemberFridgeMatch(Member member, Fridge fridge) {
+    public void validateMemberFridgeMatch(Member member, Fridge fridge) {
         if (!fridge.getMemberId().equals(member.getId()))
             throw new ServiceException(ExceptionCode.NOT_MATCH_MEMBER);
     }
+
+    /**
+     * Fridge Entity -> FridgeResponse
+     */
+    private FridgeResponse convertToFridgeResponse(Fridge fridge){
+        return new FridgeResponse(fridge.getId(), fridge.getName(), null);
+    }
+
+
+
 }
