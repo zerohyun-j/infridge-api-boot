@@ -16,7 +16,7 @@
         AND deleted_at IS NULL
     </select>
 
-    <insert id="create" parameterType="RefreshToken">
+    <insert id="save" parameterType="RefreshToken">
         INSERT INTO refresh_token
         (
             member_id,
