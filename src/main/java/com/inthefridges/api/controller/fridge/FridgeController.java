@@ -36,19 +36,24 @@ public class FridgeController {
     }
 
     @PostMapping
-    public ResponseEntity<FridgeResponse> create(@Valid @RequestBody FridgeRequest fridgeRequest, @AuthenticationPrincipal JwtAuthentication member){
-        FridgeResponse fridgeResponse = service.create(member.id(), fridgeRequest);
+    public ResponseEntity<FridgeResponse> create(@AuthenticationPrincipal JwtAuthentication member, @Valid @RequestBody FridgeRequest fridgeRequest){
+        Fridge fridge = Fridge.builder()
+                .name(fridgeRequest.name())
+                .memberId(member.id())
+                .build();
+
+        FridgeResponse fridgeResponse = service.create(fridge, fridgeRequest.fileId());
         return ResponseEntity.status(HttpStatus.CREATED).body(fridgeResponse);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<FridgeResponse> update(@PathVariable Long id, @RequestBody Fridge fridge, @AuthenticationPrincipal JwtAuthentication member){
+    public ResponseEntity<FridgeResponse> update(@AuthenticationPrincipal JwtAuthentication member, @PathVariable Long id, @RequestBody Fridge fridge){
         FridgeResponse fridgeResponse = service.update(id, member.id(), fridge);
         return ResponseEntity.ok(fridgeResponse);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id, @AuthenticationPrincipal JwtAuthentication member){
+    public ResponseEntity<Void> delete(@AuthenticationPrincipal JwtAuthentication member, @PathVariable Long id){
         service.delete(id, member.id());
         return ResponseEntity.noContent().build();
     }
