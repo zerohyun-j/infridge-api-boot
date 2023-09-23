@@ -38,6 +38,18 @@
         AND deleted_at IS NULL
     </select>
 
+    <select id="findByFridgeId" resultType="InFridgeFile">
+        SELECT * FROM file
+        WHERE fridge_id = #{fridgeId}
+        AND deleted_at IS NULL
+    </select>
+
+    <select id="findByItemId" resultType="InFridgeFile">
+        SELECT * FROM file
+        WHERE item_id = #{itemId}
+        AND deleted_at IS NULL
+    </select>
+
     <insert id="save" parameterType="InFridgeFile" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO file
         (

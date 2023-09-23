@@ -10,6 +10,6 @@ public interface FridgeService {
     List<FridgeResponse> getList(Long memberId);
     FridgeResponse get(Long memberId, Long Id);
     FridgeResponse create(Fridge fridge, Long fileId);
-    FridgeResponse update(Long id, Long memberId, Fridge fridge);
+    FridgeResponse update(Long id, Fridge fridge, Long fileId);
     void delete(Long id, Long memberId);
 }

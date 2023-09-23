@@ -10,7 +10,7 @@
         AND deleted_at IS NULL
     </select>
 
-    <select id="findByMemberId" resultType="Fridge">
+    <select id="findFridgesByMemberId" resultType="Fridge">
         SELECT * FROM fridge
         WHERE member_id = #{memberId}
         AND deleted_at IS NULL

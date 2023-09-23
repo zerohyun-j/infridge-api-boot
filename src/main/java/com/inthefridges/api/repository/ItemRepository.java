@@ -11,7 +11,8 @@ public interface ItemRepository {
     int save(Item item);
     Optional<Item> findById(Long id);
     Optional<Item> findByIdAndFridgeId(Long id, Long fridgeId);
-    List<Item> findAllByFridgeIdAndStorageId(Long fridgeId, int storageId);
+    Optional<Item> findByFridgeId(Long fridgeId);
+    List<Item> findItemsByFridgeIdAndStorageId(Long fridgeId, int storageId);
     int update(Item item);
     void delete(Long id, Long fridgeId);
 }

@@ -1,13 +1,12 @@
 package com.inthefridges.api.service;
 
 import com.inthefridges.api.dto.response.FridgeResponse;
-import com.inthefridges.api.entity.Fridge;
-import com.inthefridges.api.entity.InFridgeFile;
-import com.inthefridges.api.entity.Member;
+import com.inthefridges.api.entity.*;
 import com.inthefridges.api.global.exception.ExceptionCode;
 import com.inthefridges.api.global.exception.ServiceException;
 import com.inthefridges.api.repository.FileRepository;
 import com.inthefridges.api.repository.FridgeRepository;
+import com.inthefridges.api.repository.ItemRepository;
 import com.inthefridges.api.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,15 +20,16 @@ import java.util.List;
 public class DefaultFridgeService implements FridgeService {
 
     private final FridgeRepository repository;
-    private final FileRepository fileRepository;
     private final MemberRepository memberRepository;
+    private final FileRepository fileRepository;
+    private final ItemRepository itemRepository;
 
     @Override
     public List<FridgeResponse> getList(Long memberId) {
-        List<Fridge> fridges = repository.findByMemberId(memberId);
+        List<Fridge> fridges = repository.findFridgesByMemberId(memberId);
         return fridges
                 .stream()
-                .map(fridge -> convertToFridgeResponse(fridge))
+                .map(this::convertToFridgeResponse)
                 .toList();
     }
 
@@ -38,37 +38,34 @@ public class DefaultFridgeService implements FridgeService {
         Member member = fetchMemberById(memberId);
         Fridge fridge = fetchFridgeById(id);
         validateMemberFridgeMatch(member, fridge);
-        return convertToFridgeResponse(fridge);
+
+        Fridge findFridge = fetchFridgeById(fridge.getId());
+
+        return convertToFridgeResponse(findFridge);
     }
 
     @Override
     public FridgeResponse create(Fridge fridge, Long fileId) {
         repository.save(fridge);
 
-        // 냉장고 이미지 등록
-        if(fileId != null) {
-            InFridgeFile file = fileRepository.findById(InFridgeFile.builder()
-                                                        .id(fileId)
-                                                        .build())
-                    .orElseThrow(() -> new ServiceException(ExceptionCode.NOT_FOUND_FILE));
-            file.setFridgeId(fridge.getId());
-            fileRepository.update(file);
-        }
+        updatedFile(fridge, fileId);
+        Fridge findfridge = fetchFridgeById(fridge.getId());
 
-        Fridge fetchFridge = fetchFridgeById(fridge.getId());
-        return convertToFridgeResponse(fetchFridge);
+        return convertToFridgeResponse(findfridge);
     }
 
     @Override
-    public FridgeResponse update(Long id, Long memberId, Fridge fridge) {
-        Member member = fetchMemberById(memberId);
+    public FridgeResponse update(Long id, Fridge fridge, Long fileId) {
+        Member member = fetchMemberById(fridge.getMemberId());
         Fridge fetchFridge = fetchFridgeById(id);
         validateMemberFridgeMatch(member, fetchFridge);
 
+        updatedFile(fridge, fileId);
         fetchFridge.setName(fridge.getName());
         repository.update(fetchFridge);
-        Fridge updatedFridge = fetchFridgeById(id);
-        return convertToFridgeResponse(updatedFridge);
+
+        Fridge findFridge = fetchFridgeById(fetchFridge.getId());
+        return convertToFridgeResponse(findFridge);
     }
 
     @Override
@@ -84,7 +81,7 @@ public class DefaultFridgeService implements FridgeService {
      * @param id fridgeId
      * @return Fridge
      */
-    public Fridge fetchFridgeById(Long id) {
+    private Fridge fetchFridgeById(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ServiceException(ExceptionCode.NOT_FOUND_FRIDGE));
     }
@@ -94,7 +91,7 @@ public class DefaultFridgeService implements FridgeService {
      * @param memberId principal's memberId
      * @return Member
      */
-    public Member fetchMemberById(Long memberId) {
+    private Member fetchMemberById(Long memberId) {
         return memberRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new ServiceException(ExceptionCode.NOT_FOUND_MEMBER));
     }
@@ -104,18 +101,38 @@ public class DefaultFridgeService implements FridgeService {
      * @param member principal's memberId
      * @param fridge 접근하려는 냉장고
      */
-    public void validateMemberFridgeMatch(Member member, Fridge fridge) {
+    private void validateMemberFridgeMatch(Member member, Fridge fridge) {
         if (!fridge.getMemberId().equals(member.getId()))
             throw new ServiceException(ExceptionCode.NOT_MATCH_MEMBER);
+    }
+
+    /**
+     * 냉장고 이미지를 등록하는 메서드
+     * @param fridge
+     * @param fileId
+     */
+    private void updatedFile(Fridge fridge, Long fileId) {
+        if(fileId == null)
+            return;
+
+        InFridgeFile file = fileRepository.findById(InFridgeFile.builder()
+                        .id(fileId)
+                        .build())
+                .orElseThrow(() -> new ServiceException(ExceptionCode.NOT_FOUND_FILE));
+        file.setFridgeId(fridge.getId());
+        fileRepository.update(file);
     }
 
     /**
      * Fridge Entity -> FridgeResponse
      */
     private FridgeResponse convertToFridgeResponse(Fridge fridge){
-        return new FridgeResponse(fridge.getId(), fridge.getName(), null);
+        Item item = itemRepository.findByFridgeId(fridge.getId()).orElseGet(Item::new);
+        InFridgeFile file = fileRepository.findByFridgeId(fridge.getId()).orElseGet(InFridgeFile::new);
+        String filePath = file.getOriginName() != null
+                ? file.getPath() + file.getId() + file.getOriginName().substring(file.getOriginName().lastIndexOf("."))
+                : null;
+        return new FridgeResponse(fridge.getId(), fridge.getName(), item.getExpirationAt(), filePath);
     }
-
-
 
 }

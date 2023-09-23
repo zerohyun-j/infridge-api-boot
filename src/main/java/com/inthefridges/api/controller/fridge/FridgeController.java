@@ -1,5 +1,6 @@
 package com.inthefridges.api.controller.fridge;
 
+import com.inthefridges.api.dto.request.FileRequest;
 import com.inthefridges.api.dto.request.FridgeRequest;
 import com.inthefridges.api.dto.response.FridgeResponse;
 import com.inthefridges.api.entity.Fridge;
@@ -47,8 +48,12 @@ public class FridgeController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<FridgeResponse> update(@AuthenticationPrincipal JwtAuthentication member, @PathVariable Long id, @RequestBody Fridge fridge){
-        FridgeResponse fridgeResponse = service.update(id, member.id(), fridge);
+    public ResponseEntity<FridgeResponse> update(@AuthenticationPrincipal JwtAuthentication member, @PathVariable Long id, @RequestBody FridgeRequest fridgeRequest){
+        Fridge fridge = Fridge.builder()
+                .name(fridgeRequest.name())
+                .memberId(member.id())
+                .build();
+        FridgeResponse fridgeResponse = service.update(id, fridge, fridgeRequest.fileId());
         return ResponseEntity.ok(fridgeResponse);
     }
 

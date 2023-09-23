@@ -11,6 +11,8 @@ public interface FileRepository {
     Optional<InFridgeFile> findById(InFridgeFile file);
     Optional<InFridgeFile> findByMemberId(Long memberId);
     Optional<InFridgeFile> findByIdAndPostId(InFridgeFile file);
+    Optional<InFridgeFile> findByFridgeId(Long fridgeId);
+    Optional<InFridgeFile> findByItemId(Long itemId);
     int update(InFridgeFile file);
     void delete(InFridgeFile file);
 }
