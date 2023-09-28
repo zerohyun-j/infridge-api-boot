@@ -9,7 +9,7 @@ import java.util.List;
 public interface FridgeService {
     List<FridgeResponse> getList(Long memberId);
     FridgeResponse get(Long memberId, Long Id);
-    FridgeResponse create(Long memberId, FridgeRequest fridgeRequest);
-    FridgeResponse update(Long id, Long memberId, Fridge fridge);
+    FridgeResponse create(Fridge fridge, Long fileId);
+    FridgeResponse update(Long id, Fridge fridge, Long fileId);
     void delete(Long id, Long memberId);
 }

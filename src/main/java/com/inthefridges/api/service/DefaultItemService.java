@@ -61,7 +61,7 @@ public class DefaultItemService implements ItemService{
     @Override
     public List<ItemResponse> getList(Long memberId, Long fridgeId, int storageId) {
 
-        List<Item> items = repository.findAllByFridgeIdAndStorageId(fridgeId, storageId);
+        List<Item> items = repository.findItemsByFridgeIdAndStorageId(fridgeId, storageId);
 
         return items.stream()
                 .map(findItem -> {

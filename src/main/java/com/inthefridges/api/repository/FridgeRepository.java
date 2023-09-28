@@ -8,7 +8,7 @@ import java.util.Optional;
 
 @Mapper
 public interface FridgeRepository {
-    List<Fridge> findByMemberId(Long memberId);
+    List<Fridge> findFridgesByMemberId(Long memberId);
     Optional<Fridge> findById(Long id);
     int save(Fridge fridge);
     int update(Fridge fridge);

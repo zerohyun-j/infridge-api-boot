@@ -17,6 +17,15 @@
         AND deleted_at IS NULL
     </select>
 
+    <select id="findByFridgeId" resultType="Item">
+        SELECT *
+        FROM item
+        WHERE fridge_id = #{fridgeId}
+        AND deleted_at IS NULL
+        ORDER BY ABS(DATEDIFF(expiration_at, CURDATE()))
+        LIMIT 1;
+    </select>
+
     <select id="findAllByFridgeIdAndStorageId" resultType="Item">
         SELECT * FROM item
         WHERE fridge_id = #{fridgeId}
