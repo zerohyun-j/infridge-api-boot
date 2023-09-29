@@ -75,6 +75,6 @@ public class DefaultMemberService implements MemberService{
         InFridgeFile profileImage = fileRepository.findByMemberId(id)
                                     .orElse(new InFridgeFile());
         List<String> roles = memberRoleRepository.findByMemberId(member.getId());
-        return new MemberResponse(member.getId(), member.getUsername(), profileImage.getPath(), roles);
+        return new MemberResponse(member.getId(), member.getUsername(), member.getEmail(), profileImage.getPath(), roles);
     }
 }
