@@ -28,8 +28,11 @@ public enum ExceptionCode {
     NOT_FOUND_REFRESH_TOKEN("A008", HttpStatus.NOT_FOUND, "유효하지 않은 리프레쉬 토큰입니다."),
     INVALID_URI("A009", HttpStatus.BAD_REQUEST, "승인되지 않은 리디렉션 URI입니다."),
     ACCESS_DENIED("A010", HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
-    NOT_FOUND_MEMBER("A011", HttpStatus.NOT_FOUND, "회원을 찾을 수 없습니다."),
-    NOT_MATCH_MEMBER("A012", HttpStatus.FORBIDDEN, "일치하지 않는 회원입니다."),
+
+    // MEMBER
+    NOT_FOUND_MEMBER("M001", HttpStatus.NOT_FOUND, "회원을 찾을 수 없습니다."),
+    NOT_MATCH_MEMBER("M002", HttpStatus.FORBIDDEN, "일치하지 않는 회원입니다."),
+    DUPLICATED_USERNAME("M003", HttpStatus.BAD_REQUEST, "해당 닉네임은 이미 사용중인 닉네임입니다."),
 
     // Fridge
     NOT_FOUND_FRIDGE("FR001", HttpStatus.NOT_FOUND, "냉장고를 찾을 수 없습니다."),
