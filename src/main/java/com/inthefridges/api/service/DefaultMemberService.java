@@ -1,5 +1,6 @@
 package com.inthefridges.api.service;
 
+import com.inthefridges.api.dto.request.MemberRequest;
 import com.inthefridges.api.dto.response.MemberResponse;
 import com.inthefridges.api.entity.*;
 import com.inthefridges.api.global.exception.ExceptionCode;
@@ -40,6 +41,7 @@ public class DefaultMemberService implements MemberService{
         Social social = socialRepository.findBySocialName(oAuthUserInfo.getProvider())
                 .orElseThrow(() -> new ServiceException(ExceptionCode.NOT_SUPPORTED_SOCIAL));
 
+        // 재가입 SocialId 체크 필요
         Member member = Member.builder()
                         .email(oAuthUserInfo.getEmail())
                         .socialId(oAuthUserInfo.getId())
@@ -70,11 +72,48 @@ public class DefaultMemberService implements MemberService{
 
     @Override
     public MemberResponse getProfile(Long id) {
-        Member member = repository.findByMemberId(id)
-                .orElseThrow(() -> new ServiceException(ExceptionCode.NOT_FOUND_MEMBER));
-        InFridgeFile profileImage = fileRepository.findByMemberId(id)
-                                    .orElse(new InFridgeFile());
+        Member findMember = fetchMemberById(id);
+        return convertToMemberResponse(findMember);
+    }
+
+    @Override
+    public MemberResponse update(Long id, MemberRequest memberRequest) {
+        Member findMember = fetchMemberById(id);
+        repository.findByUsername(memberRequest.username())
+                .ifPresent(member -> {
+                    throw new ServiceException(ExceptionCode.DUPLICATED_USERNAME);
+                });
+
+        findMember.setUsername(memberRequest.username());
+        repository.update(findMember);
+        Member updateMember = fetchMemberById(id);
+
+        return convertToMemberResponse(updateMember);
+    }
+
+    @Override
+    public void delete(Long memberId) {
+        Member findMember = fetchMemberById(memberId);
+        repository.delete(findMember.getId());
+    }
+
+    /**
+     * Member Entity -> MemberResponse
+     */
+    private MemberResponse convertToMemberResponse(Member member){
+        InFridgeFile profileImage = fileRepository.findByMemberId(member.getId())
+                .orElseThrow(()->new ServiceException(ExceptionCode.NOT_FOUND_FILE));
         List<String> roles = memberRoleRepository.findByMemberId(member.getId());
-        return new MemberResponse(member.getId(), member.getUsername(), profileImage.getPath(), roles);
+        return new MemberResponse(member.getId(), member.getUsername(), member.getEmail(), profileImage.getPath(), roles);
+    }
+
+    /**
+     * memberId 로 member 찾기
+     * @param memberId principal's memberId
+     * @return Member
+     */
+    private Member fetchMemberById(Long memberId) {
+        return repository.findByMemberId(memberId)
+                .orElseThrow(() -> new ServiceException(ExceptionCode.NOT_FOUND_MEMBER));
     }
 }

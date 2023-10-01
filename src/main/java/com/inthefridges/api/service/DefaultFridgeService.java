@@ -1,9 +1,13 @@
 package com.inthefridges.api.service;
 
 import com.inthefridges.api.dto.response.FridgeResponse;
-import com.inthefridges.api.entity.*;
+import com.inthefridges.api.entity.Fridge;
+import com.inthefridges.api.entity.InFridgeFile;
+import com.inthefridges.api.entity.Item;
+import com.inthefridges.api.entity.Member;
 import com.inthefridges.api.global.exception.ExceptionCode;
 import com.inthefridges.api.global.exception.ServiceException;
+import com.inthefridges.api.global.utils.FileUtil;
 import com.inthefridges.api.repository.FileRepository;
 import com.inthefridges.api.repository.FridgeRepository;
 import com.inthefridges.api.repository.ItemRepository;
@@ -128,11 +132,10 @@ public class DefaultFridgeService implements FridgeService {
      */
     private FridgeResponse convertToFridgeResponse(Fridge fridge){
         Item item = itemRepository.findByFridgeId(fridge.getId()).orElseGet(Item::new);
-        InFridgeFile file = fileRepository.findByFridgeId(fridge.getId()).orElseGet(InFridgeFile::new);
-        String filePath = file.getOriginName() != null
-                ? file.getPath() + file.getId() + file.getOriginName().substring(file.getOriginName().lastIndexOf("."))
-                : null;
-        return new FridgeResponse(fridge.getId(), fridge.getName(), item.getExpirationAt(), filePath);
+        InFridgeFile file = fileRepository.findByFridgeId(fridge.getId())
+                .orElseThrow(() -> new ServiceException(ExceptionCode.NOT_FOUND_FILE));
+        String imagePath = FileUtil.getFilePath(file);
+        return new FridgeResponse(fridge.getId(), fridge.getName(), item.getExpirationAt(), imagePath);
     }
 
 }

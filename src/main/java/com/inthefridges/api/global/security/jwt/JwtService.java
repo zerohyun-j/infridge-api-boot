@@ -81,7 +81,7 @@ public class JwtService {
                 .orElseThrow(()->new ServiceException(ExceptionCode.NOT_FOUND_REFRESH_TOKEN));
 
         if(fetchToken.getExpiryDate().before(new Date()))
-            throw new ServiceException(ExceptionCode.EXPIRED_TOKEN);
+            throw new ServiceException(ExceptionCode.NOT_FOUND_REFRESH_TOKEN);
 
         String accessToken = jwtProvider.createAccessToken(fetchToken.getMemberId(), fetchToken.getRole());
         String refreshToken = jwtProvider.createRefreshToken(fetchToken.getMemberId(), fetchToken.getRole());

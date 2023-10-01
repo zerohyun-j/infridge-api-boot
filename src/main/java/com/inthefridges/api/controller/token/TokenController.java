@@ -1,4 +1,4 @@
-package com.inthefridges.api.controller.refreshToken;
+package com.inthefridges.api.controller.token;
 
 import com.inthefridges.api.global.security.jwt.JwtService;
 import com.inthefridges.api.global.security.jwt.model.Tokens;
@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/refresh")
-public class RefreshTokenController {
+public class TokenController {
     private final JwtService jwtService;
 
     @GetMapping
