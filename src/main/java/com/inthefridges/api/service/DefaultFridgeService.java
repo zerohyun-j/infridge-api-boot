@@ -1,5 +1,6 @@
 package com.inthefridges.api.service;
 
+import com.inthefridges.api.dto.request.FridgeRequest;
 import com.inthefridges.api.dto.response.FridgeResponse;
 import com.inthefridges.api.entity.Fridge;
 import com.inthefridges.api.entity.InFridgeFile;
@@ -49,7 +50,8 @@ public class DefaultFridgeService implements FridgeService {
     }
 
     @Override
-    public FridgeResponse create(Fridge fridge, Long fileId) {
+    public FridgeResponse create(FridgeRequest fridgeRequest, Long memberId, Long fileId) {
+        Fridge fridge = convertToFridge(fridgeRequest, memberId);
         repository.save(fridge);
 
         updatedFile(fridge, fileId);
@@ -59,7 +61,9 @@ public class DefaultFridgeService implements FridgeService {
     }
 
     @Override
-    public FridgeResponse update(Long id, Fridge fridge, Long fileId) {
+    public FridgeResponse update(Long id, FridgeRequest fridgeRequest, Long memberId, Long fileId) {
+        Fridge fridge = convertToFridge(fridgeRequest, memberId);
+
         Member member = fetchMemberById(fridge.getMemberId());
         Fridge fetchFridge = fetchFridgeById(id);
         validateMemberFridgeMatch(member, fetchFridge);
@@ -136,6 +140,16 @@ public class DefaultFridgeService implements FridgeService {
                 .orElseThrow(() -> new ServiceException(ExceptionCode.NOT_FOUND_FILE));
         String imagePath = FileUtil.getFilePath(file);
         return new FridgeResponse(fridge.getId(), fridge.getName(), item.getExpirationAt(), imagePath);
+    }
+
+    /**
+     * FridgeResponse -> Fridge Entity
+     */
+    private Fridge convertToFridge(FridgeRequest fridgeRequest, Long memberId){
+        return Fridge.builder()
+                .name(fridgeRequest.name())
+                .memberId(memberId)
+                .build();
     }
 
 }
