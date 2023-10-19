@@ -1,8 +1,8 @@
 package com.inthefridges.api.service;
 
+import com.inthefridges.api.dto.request.ItemRequest;
 import com.inthefridges.api.dto.response.ItemResponse;
 import com.inthefridges.api.entity.Category;
-import com.inthefridges.api.entity.Fridge;
 import com.inthefridges.api.entity.Item;
 import com.inthefridges.api.entity.Member;
 import com.inthefridges.api.global.exception.ExceptionCode;
@@ -23,7 +23,9 @@ public class DefaultItemService implements ItemService{
     private final StorageTypeRepository storageTypeRepository;
 
     @Override
-    public ItemResponse create(Item item) {
+    public ItemResponse create(ItemRequest itemRequest, Long memberId, Long fridgeId) {
+
+        Item item = convertToItem(itemRequest, null, memberId, fridgeId);
         memberRepository.findByMemberId(item.getMemberId())
                 .orElseThrow(() -> new ServiceException(ExceptionCode.NOT_FOUND_MEMBER));
 
@@ -73,7 +75,10 @@ public class DefaultItemService implements ItemService{
     }
 
     @Override
-    public ItemResponse update(Item item) {
+    public ItemResponse update(ItemRequest itemRequest, Long id, Long memberId, Long fridgeId) {
+
+        Item item = convertToItem(itemRequest, id, memberId, fridgeId);
+
         Member member = fetchMemberById(item.getMemberId());
         Item fetchItem = fetchItemById(item.getId());
         validateMemberFridgeMatch(member, fetchItem);
@@ -141,5 +146,20 @@ public class DefaultItemService implements ItemService{
                                 item.getExpirationAt(),
                                 item.getStorageId(),
                                 category);
+    }
+
+    /**
+     * ItemRequest -> Item Entity
+     */
+    private Item convertToItem(ItemRequest itemRequest, Long id, Long memberId, Long fridgeId){
+        return Item.builder()
+                .name(itemRequest.name())
+                .quantity(itemRequest.quantity())
+                .expirationAt(itemRequest.expirationAt())
+                .categoryId(itemRequest.categoryId())
+                .storageId(itemRequest.storageTypeId())
+                .fridgeId(fridgeId)
+                .memberId(memberId)
+                .build();
     }
 }
