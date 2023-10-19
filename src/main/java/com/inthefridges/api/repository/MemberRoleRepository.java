@@ -9,4 +9,6 @@ import java.util.List;
 public interface MemberRoleRepository {
     int save(MemberRole memberRole);
     List<String> findByMemberId(Long memberId);
+
+    int delete(Long memberId);
 }

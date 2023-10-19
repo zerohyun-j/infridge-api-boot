@@ -11,7 +11,7 @@
         AND deleted_at IS NULL
     </select>
 
-    <insert id="create" parameterType="MemberRole" useGeneratedKeys="true" keyProperty="id">
+    <insert id="save" parameterType="MemberRole" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO member_role
         (
             member_id,
@@ -23,4 +23,14 @@
             #{roleId}
         )
     </insert>
+
+    <delete id="delete">
+        UPDATE member_role
+        <set>
+            deleted_at = NOW()
+        </set>
+        WHERE
+        member_id = #{memberId} AND
+        deleted_at IS NULL
+    </delete>
 </mapper>

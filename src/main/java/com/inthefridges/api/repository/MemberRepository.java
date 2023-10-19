@@ -12,5 +12,5 @@ public interface MemberRepository {
     Optional<Member> findByUsername(String username);
     int save(Member Member);
     int update(Member member);
-    int delete(Long id);
+    int delete(Long id, String updatedSocialId);
 }

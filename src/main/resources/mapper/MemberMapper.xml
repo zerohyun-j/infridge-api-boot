@@ -50,7 +50,10 @@
 
     <delete id="delete">
         UPDATE member
-        SET deleted_at = NOW()
+        <set>
+            social_id = #{updatedSocialId},
+            deleted_at = NOW()
+        </set>
         WHERE
         id = #{id} AND
         deleted_at IS NULL

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -41,7 +42,6 @@ public class DefaultMemberService implements MemberService{
         Social social = socialRepository.findBySocialName(oAuthUserInfo.getProvider())
                 .orElseThrow(() -> new ServiceException(ExceptionCode.NOT_SUPPORTED_SOCIAL));
 
-        // 재가입 SocialId 체크 필요
         Member member = Member.builder()
                         .email(oAuthUserInfo.getEmail())
                         .socialId(oAuthUserInfo.getId())
@@ -93,8 +93,15 @@ public class DefaultMemberService implements MemberService{
 
     @Override
     public void delete(Long memberId) {
+
+        memberRoleRepository.delete(memberId);
+        fileRepository.findByMemberId(memberId).ifPresent(file -> fileRepository.delete(file));
+
         Member findMember = fetchMemberById(memberId);
-        repository.delete(findMember.getId());
+        String uuid = UUID.randomUUID().toString();
+        String updatedSocialId = findMember.getSocialId().concat(uuid);
+        findMember.setSocialId(updatedSocialId);
+        repository.delete(findMember.getId(), updatedSocialId);
     }
 
     /**
