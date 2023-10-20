@@ -16,6 +16,7 @@ public class InFridgeFile {
     private Long fridgeId;
     private Long itemId;
     private Long memberId;
+    private boolean profile;
     private String originName;
     private String path;
     private Date createdAt;

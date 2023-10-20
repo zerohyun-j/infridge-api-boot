@@ -53,6 +53,7 @@ public class DefaultMemberService implements MemberService{
         String path = oAuthUserInfo.getProfileImageUrl();
         InFridgeFile profileImage = InFridgeFile.builder()
                                     .path(path)
+                                    .profile(true)
                                     .originName(path)
                                     .memberId(member.getId())
                                     .build();
