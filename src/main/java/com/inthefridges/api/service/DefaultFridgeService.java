@@ -1,6 +1,7 @@
 package com.inthefridges.api.service;
 
-import com.inthefridges.api.dto.request.FridgeRequest;
+import com.inthefridges.api.dto.request.CreateFridgeRequest;
+import com.inthefridges.api.dto.request.UpdateFridgeRequest;
 import com.inthefridges.api.dto.response.FridgeResponse;
 import com.inthefridges.api.entity.Fridge;
 import com.inthefridges.api.entity.InFridgeFile;
@@ -9,6 +10,7 @@ import com.inthefridges.api.entity.Member;
 import com.inthefridges.api.global.exception.ExceptionCode;
 import com.inthefridges.api.global.exception.ServiceException;
 import com.inthefridges.api.global.utils.FileUtil;
+import com.inthefridges.api.mapper.FridgeMapper;
 import com.inthefridges.api.repository.FileRepository;
 import com.inthefridges.api.repository.FridgeRepository;
 import com.inthefridges.api.repository.ItemRepository;
@@ -50,8 +52,8 @@ public class DefaultFridgeService implements FridgeService {
     }
 
     @Override
-    public FridgeResponse create(FridgeRequest fridgeRequest, Long memberId, Long fileId) {
-        Fridge fridge = convertToFridge(fridgeRequest, null, memberId);
+    public FridgeResponse create(CreateFridgeRequest createFridgeRequest, Long memberId, Long fileId) {
+        Fridge fridge = FridgeMapper.toFridge(createFridgeRequest, memberId);
         repository.save(fridge);
 
         updatedFile(fridge, fileId);
@@ -61,8 +63,8 @@ public class DefaultFridgeService implements FridgeService {
     }
 
     @Override
-    public FridgeResponse update(Long id, FridgeRequest fridgeRequest, Long memberId, Long fileId) {
-        Fridge fridge = convertToFridge(fridgeRequest, id, memberId);
+    public FridgeResponse update(Long id, UpdateFridgeRequest updateFridgeRequest, Long memberId, Long fileId) {
+        Fridge fridge = FridgeMapper.toFridge(updateFridgeRequest, memberId);
 
         Member member = fetchMemberById(fridge.getMemberId());
         Fridge fetchFridge = fetchFridgeById(id);
@@ -137,19 +139,12 @@ public class DefaultFridgeService implements FridgeService {
     private FridgeResponse convertToFridgeResponse(Fridge fridge){
         Item item = itemRepository.findByFridgeId(fridge.getId()).orElseGet(Item::new);
         InFridgeFile file = fileRepository.findByFridgeId(fridge.getId())
-                .orElseThrow(() -> new ServiceException(ExceptionCode.NOT_FOUND_FILE));
-        String imagePath = FileUtil.getFilePath(file);
-        return new FridgeResponse(fridge.getId(), fridge.getName(), item.getExpirationAt(), imagePath);
-    }
+                                          .orElseGet(InFridgeFile::new);
 
-    /**
-     * FridgeResponse -> Fridge Entity
-     */
-    private Fridge convertToFridge(FridgeRequest fridgeRequest, Long id, Long memberId){
-        return Fridge.builder()
-                .name(fridgeRequest.name())
-                .memberId(memberId)
-                .build();
+        boolean isPathEmpty = file.getPath() == null || file.getPath().isEmpty();
+        String imagePath = isPathEmpty ? "" : FileUtil.getFilePath(file);
+
+        return FridgeMapper.toFridgeResponse(fridge, item.getExpirationAt(), imagePath);
     }
 
 }
