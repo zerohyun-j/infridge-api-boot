@@ -51,7 +51,7 @@ public class DefaultFridgeService implements FridgeService {
 
     @Override
     public FridgeResponse create(FridgeRequest fridgeRequest, Long memberId, Long fileId) {
-        Fridge fridge = convertToFridge(fridgeRequest, memberId);
+        Fridge fridge = convertToFridge(fridgeRequest, null, memberId);
         repository.save(fridge);
 
         updatedFile(fridge, fileId);
@@ -62,7 +62,7 @@ public class DefaultFridgeService implements FridgeService {
 
     @Override
     public FridgeResponse update(Long id, FridgeRequest fridgeRequest, Long memberId, Long fileId) {
-        Fridge fridge = convertToFridge(fridgeRequest, memberId);
+        Fridge fridge = convertToFridge(fridgeRequest, id, memberId);
 
         Member member = fetchMemberById(fridge.getMemberId());
         Fridge fetchFridge = fetchFridgeById(id);
@@ -145,7 +145,7 @@ public class DefaultFridgeService implements FridgeService {
     /**
      * FridgeResponse -> Fridge Entity
      */
-    private Fridge convertToFridge(FridgeRequest fridgeRequest, Long memberId){
+    private Fridge convertToFridge(FridgeRequest fridgeRequest, Long id, Long memberId){
         return Fridge.builder()
                 .name(fridgeRequest.name())
                 .memberId(memberId)
