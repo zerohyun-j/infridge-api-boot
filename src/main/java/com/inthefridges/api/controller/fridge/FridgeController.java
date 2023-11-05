@@ -1,6 +1,7 @@
 package com.inthefridges.api.controller.fridge;
 
-import com.inthefridges.api.dto.request.FridgeRequest;
+import com.inthefridges.api.dto.request.CreateFridgeRequest;
+import com.inthefridges.api.dto.request.UpdateFridgeRequest;
 import com.inthefridges.api.dto.response.FridgeResponse;
 import com.inthefridges.api.global.security.jwt.model.JwtAuthentication;
 import com.inthefridges.api.service.FridgeService;
@@ -35,14 +36,14 @@ public class FridgeController {
     }
 
     @PostMapping
-    public ResponseEntity<FridgeResponse> create(@AuthenticationPrincipal JwtAuthentication member, @Valid @RequestBody FridgeRequest fridgeRequest){
-        FridgeResponse fridgeResponse = service.create(fridgeRequest, member.id(), fridgeRequest.fileId());
+    public ResponseEntity<FridgeResponse> create(@AuthenticationPrincipal JwtAuthentication member, @Valid @RequestBody CreateFridgeRequest createFridgeRequest){
+        FridgeResponse fridgeResponse = service.create(createFridgeRequest, member.id(), createFridgeRequest.fileId());
         return ResponseEntity.status(HttpStatus.CREATED).body(fridgeResponse);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<FridgeResponse> update(@AuthenticationPrincipal JwtAuthentication member, @PathVariable Long id, @RequestBody FridgeRequest fridgeRequest){
-        FridgeResponse fridgeResponse = service.update(id,fridgeRequest, member.id(), fridgeRequest.fileId());
+    public ResponseEntity<FridgeResponse> update(@AuthenticationPrincipal JwtAuthentication member, @PathVariable Long id, @RequestBody UpdateFridgeRequest updateFridgeRequest){
+        FridgeResponse fridgeResponse = service.update(id, updateFridgeRequest, member.id(), updateFridgeRequest.fileId());
         return ResponseEntity.ok(fridgeResponse);
     }
 
