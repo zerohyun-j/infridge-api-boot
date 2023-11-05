@@ -1,6 +1,7 @@
-package com.inthefridges.api.controller.fridge.item;
+package com.inthefridges.api.controller.item;
 
-import com.inthefridges.api.dto.request.ItemRequest;
+import com.inthefridges.api.dto.request.CreateItemRequest;
+import com.inthefridges.api.dto.request.UpdateItemRequest;
 import com.inthefridges.api.dto.response.ItemResponse;
 import com.inthefridges.api.global.security.jwt.model.JwtAuthentication;
 import com.inthefridges.api.service.ItemService;
@@ -34,14 +35,14 @@ public class ItemController {
     }
 
     @PutMapping("{fridgeId}/items/{id}")
-    public ResponseEntity<ItemResponse> update(@AuthenticationPrincipal JwtAuthentication member, @PathVariable Long fridgeId, @PathVariable Long id, @Valid @RequestBody ItemRequest itemRequest){
-        ItemResponse itemResponse = service.update(itemRequest, id, member.id(), fridgeId);
+    public ResponseEntity<ItemResponse> update(@AuthenticationPrincipal JwtAuthentication member, @PathVariable Long fridgeId, @PathVariable Long id, @Valid @RequestBody UpdateItemRequest updateItemRequest){
+        ItemResponse itemResponse = service.update(updateItemRequest, id, member.id(), fridgeId);
         return ResponseEntity.ok(itemResponse);
     }
 
     @PostMapping("{fridgeId}/items")
-    public ResponseEntity<ItemResponse> create(@AuthenticationPrincipal JwtAuthentication member, @Valid @RequestBody ItemRequest itemRequest, @PathVariable Long fridgeId){
-        ItemResponse itemResponse = service.create(itemRequest, member.id(), fridgeId);
+    public ResponseEntity<ItemResponse> create(@AuthenticationPrincipal JwtAuthentication member, @Valid @RequestBody CreateItemRequest createItemRequest, @PathVariable Long fridgeId){
+        ItemResponse itemResponse = service.create(createItemRequest, member.id(), fridgeId);
         return ResponseEntity.status(HttpStatus.CREATED).body(itemResponse);
     }
 

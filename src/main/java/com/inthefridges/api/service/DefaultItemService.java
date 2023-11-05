@@ -1,12 +1,14 @@
 package com.inthefridges.api.service;
 
-import com.inthefridges.api.dto.request.ItemRequest;
+import com.inthefridges.api.dto.request.CreateItemRequest;
+import com.inthefridges.api.dto.request.UpdateItemRequest;
 import com.inthefridges.api.dto.response.ItemResponse;
 import com.inthefridges.api.entity.Category;
 import com.inthefridges.api.entity.Item;
 import com.inthefridges.api.entity.Member;
 import com.inthefridges.api.global.exception.ExceptionCode;
 import com.inthefridges.api.global.exception.ServiceException;
+import com.inthefridges.api.mapper.ItemMapper;
 import com.inthefridges.api.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,9 +25,9 @@ public class DefaultItemService implements ItemService{
     private final StorageTypeRepository storageTypeRepository;
 
     @Override
-    public ItemResponse create(ItemRequest itemRequest, Long memberId, Long fridgeId) {
+    public ItemResponse create(CreateItemRequest createItemRequest, Long memberId, Long fridgeId) {
 
-        Item item = convertToItem(itemRequest, null, memberId, fridgeId);
+        Item item = ItemMapper.toItem(createItemRequest, memberId, fridgeId);
         memberRepository.findByMemberId(item.getMemberId())
                 .orElseThrow(() -> new ServiceException(ExceptionCode.NOT_FOUND_MEMBER));
 
@@ -43,7 +45,7 @@ public class DefaultItemService implements ItemService{
         Item findItem = repository.findById(item.getId())
                 .orElseThrow(() -> new ServiceException(ExceptionCode.NOT_FOUND_ITEM));
 
-        return convertToItemResponse(findItem, category);
+        return ItemMapper.toItemResponse(findItem, category);
     }
 
     @Override
@@ -57,7 +59,7 @@ public class DefaultItemService implements ItemService{
         Category category = categoryRepository.findById(item.getCategoryId())
                 .orElseThrow(() -> new ServiceException(ExceptionCode.NOT_FOUND_CATEGORY));
 
-        return convertToItemResponse(findItem, category);
+        return ItemMapper.toItemResponse(findItem, category);
     }
 
     @Override
@@ -69,15 +71,15 @@ public class DefaultItemService implements ItemService{
                 .map(findItem -> {
                     Category category = categoryRepository.findById(findItem.getCategoryId())
                             .orElseThrow(() -> new ServiceException(ExceptionCode.NOT_FOUND_CATEGORY));
-                    return convertToItemResponse(findItem, category);
+                    return ItemMapper.toItemResponse(findItem, category);
                 })
                 .toList();
     }
 
     @Override
-    public ItemResponse update(ItemRequest itemRequest, Long id, Long memberId, Long fridgeId) {
+    public ItemResponse update(UpdateItemRequest updateItemRequest, Long id, Long memberId, Long fridgeId) {
 
-        Item item = convertToItem(itemRequest, id, memberId, fridgeId);
+        Item item = ItemMapper.toItem(updateItemRequest, memberId, fridgeId);
 
         Member member = fetchMemberById(item.getMemberId());
         Item fetchItem = fetchItemById(item.getId());
@@ -94,7 +96,7 @@ public class DefaultItemService implements ItemService{
         Category category = categoryRepository.findById(findItem.getCategoryId())
                 .orElseThrow(() -> new ServiceException(ExceptionCode.NOT_FOUND_CATEGORY));
 
-        return convertToItemResponse(fetchItem, category);
+        return ItemMapper.toItemResponse(fetchItem, category);
     }
 
     @Override
@@ -134,32 +136,5 @@ public class DefaultItemService implements ItemService{
     public void validateMemberFridgeMatch(Member member, Item item) {
         if (!item.getMemberId().equals(member.getId()))
             throw new ServiceException(ExceptionCode.NOT_MATCH_MEMBER);
-    }
-
-    /**
-     * Item Entity -> ItemResponse
-     */
-    private ItemResponse convertToItemResponse(Item item, Category category){
-        return new ItemResponse(item.getId(),
-                                item.getName(),
-                                item.getQuantity(),
-                                item.getExpirationAt(),
-                                item.getStorageId(),
-                                category);
-    }
-
-    /**
-     * ItemRequest -> Item Entity
-     */
-    private Item convertToItem(ItemRequest itemRequest, Long id, Long memberId, Long fridgeId){
-        return Item.builder()
-                .name(itemRequest.name())
-                .quantity(itemRequest.quantity())
-                .expirationAt(itemRequest.expirationAt())
-                .categoryId(itemRequest.categoryId())
-                .storageId(itemRequest.storageTypeId())
-                .fridgeId(fridgeId)
-                .memberId(memberId)
-                .build();
     }
 }
