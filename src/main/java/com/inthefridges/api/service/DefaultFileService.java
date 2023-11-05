@@ -6,6 +6,7 @@ import com.inthefridges.api.entity.InFridgeFile;
 import com.inthefridges.api.entity.Member;
 import com.inthefridges.api.global.exception.ExceptionCode;
 import com.inthefridges.api.global.exception.ServiceException;
+import com.inthefridges.api.mapper.FileMapper;
 import com.inthefridges.api.repository.FileRepository;
 import com.inthefridges.api.repository.MemberRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,14 +34,14 @@ public class DefaultFileService implements FileService{
 
     @Override
     public FileResponse get(Long memberId, FileRequest fileRequest) {
-        InFridgeFile file = convertToFileEntity(memberId, fileRequest);
+        InFridgeFile file = FileMapper.toFile(fileRequest, memberId);
 
         // 삭제하려는 회원과 삭제 파일 회원 검증
         Member member = fetchMemberById(memberId);
         InFridgeFile fetchFile = fetchFileByIdAndPostId(file);
         validateMemberFileMatch(member, fetchFile);
 
-        return convertToFileResponse(fetchFile);
+        return FileMapper.toFileResponse(fetchFile, createFilePath(fetchFile));
     }
 
     @Override
@@ -97,12 +98,12 @@ public class DefaultFileService implements FileService{
             throw new ServiceException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
 
-        return new FileResponse(newFile.getId(), dateFolderPath, originalFileName);
+        return FileMapper.toFileResponse(newFile, dateFolderPath);
     }
 
     @Override
     public FileResponse update(Long memberId, FileRequest fileRequest) {
-        InFridgeFile file = convertToFileEntity(memberId, fileRequest);
+        InFridgeFile file = FileMapper.toFile(fileRequest, memberId);
 
         // 삭제하려는 회원과 삭제 파일 회원 검증
         Member member = fetchMemberById(memberId);
@@ -118,12 +119,12 @@ public class DefaultFileService implements FileService{
         repository.update(findFile);
         InFridgeFile updatedFile = fetchFileByIdAndPostId(findFile);
 
-        return convertToFileResponse(updatedFile);
+        return FileMapper.toFileResponse(updatedFile, createFilePath(updatedFile));
     }
 
     @Override
     public void delete(Long memberId, FileRequest fileRequest) {
-        InFridgeFile file = convertToFileEntity(memberId, fileRequest);
+        InFridgeFile file = FileMapper.toFile(fileRequest, memberId);
 
         // 삭제하려는 회원과 삭제 파일 회원 검증
         Member member = fetchMemberById(memberId);
@@ -198,26 +199,13 @@ public class DefaultFileService implements FileService{
     }
 
     /**
-     * FileRequest -> InFridgeFile Entity
+     * 파일의 전체 경로를 반환해주는 메서드
      */
-    private InFridgeFile convertToFileEntity(Long memberId, FileRequest fileRequest){
-        return InFridgeFile.builder()
-                .memberId(memberId)
-                .id(fileRequest.id())
-                .fridgeId(fileRequest.fridgeId())
-                .itemId(fileRequest.itemId())
-                .build();
-    }
-
-    /**
-     * InFridgeFile Entity -> FileRequest
-     */
-    private FileResponse convertToFileResponse(InFridgeFile file){
-        String fullPath = new StringBuilder("/")
+    private String createFilePath(InFridgeFile file){
+        return new StringBuilder("/")
                 .append(file.getPath())
                 .append(file.getId())
                 .append(getFileExtension(file.getOriginName()))
                 .toString();
-        return new FileResponse(file.getId(), fullPath, file.getOriginName());
     }
 }
